@@ -7,7 +7,6 @@ import javafx.scene.control.Control;
 import javafx.scene.control.Skin;
 import javafx.scene.text.Font;
 
-import static javafx.beans.binding.Bindings.when;
 import static javafx.scene.text.FontPosture.REGULAR;
 import static javafx.scene.text.FontWeight.BLACK;
 
@@ -23,6 +22,7 @@ public class ArabicLabelView extends Control {
     private final DoubleProperty labelWidth = new SimpleDoubleProperty(DEFAULT_WIDTH, "width");
     private final DoubleProperty labelHeight = new SimpleDoubleProperty(DEFAULT_HEIGHT, "height");
     private final BooleanProperty selected = new SimpleBooleanProperty(false, "selected");
+    private final BooleanProperty readonlySelected = new SimpleBooleanProperty();
     private final ObjectProperty<Font> font = new SimpleObjectProperty<>(DEFAULT_FONT, "font");
     private final ObjectProperty<ArabicSupport> label = new SimpleObjectProperty<>(null, "label");
     private final ObjectProperty<ArabicLabelToggleGroup> group = new SimpleObjectProperty<>(null, "group");
@@ -42,11 +42,9 @@ public class ArabicLabelView extends Control {
         setLabelWidth(DEFAULT_WIDTH);
         setLabelHeight(DEFAULT_HEIGHT);
         setFont(DEFAULT_FONT);
-        ObjectProperty<ArabicSupport> obj = new SimpleObjectProperty<>();
-        obj.set(label);
-        disableProperty().bind(when(obj.isNull()).then(true).otherwise(false));
         selectedProperty().addListener((o, oV, nV) -> makeSelection(nV));
         setSelected(false);
+        readonlySelectedProperty().set(false);
     }
 
     @Override
@@ -90,6 +88,10 @@ public class ArabicLabelView extends Control {
         return selected;
     }
 
+    public final BooleanProperty readonlySelectedProperty() {
+        return readonlySelected;
+    }
+
     public final ArabicLabelToggleGroup getGroup() {
         return group == null ? null : group.get();
     }
@@ -127,18 +129,16 @@ public class ArabicLabelView extends Control {
         return label;
     }
 
-    public void makeSelection() {
-        if (!isDisable()) {
-            setSelected(!isSelected());
-        }
-    }
 
-    private void makeSelection(Boolean value) {
-        if (getLabel() == null || isDisabled()) {
+    public void makeSelection(Boolean value) {
+        if (isDisabled()) {
             setSelected(false);
             return;
         }
         ArabicLabelToggleGroup group = getGroup();
+        if (value == null) {
+            value = !isSelected();
+        }
         if (group == null) {
             setSelected(value);
         } else {

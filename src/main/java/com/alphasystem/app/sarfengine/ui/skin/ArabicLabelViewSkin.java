@@ -49,7 +49,7 @@ public class ArabicLabelViewSkin extends SkinBase<ArabicLabelView> {
                 background.setHeight((Double) nV);
             }
         });
-        background.strokeProperty().bind(when(view.selectedProperty()).then(RED).otherwise(BLACK));
+        background.strokeProperty().bind(when(view.readonlySelectedProperty()).then(RED).otherwise(BLACK));
         stackPane.disableProperty().bind(view.disabledProperty());
 
         stackPane.getChildren().addAll(background, label);
@@ -70,6 +70,6 @@ public class ArabicLabelViewSkin extends SkinBase<ArabicLabelView> {
 
     private void makeSelection(ArabicLabelView view) {
         stackPane.requestFocus();
-        view.makeSelection();
+        view.makeSelection(null);
     }
 }
