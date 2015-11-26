@@ -4,7 +4,6 @@ import com.alphasystem.arabic.model.ArabicSupport;
 import javafx.collections.ObservableList;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
-import org.apache.commons.lang3.ArrayUtils;
 
 import static org.apache.commons.lang3.ArrayUtils.*;
 
@@ -64,13 +63,6 @@ public class ArabicSupportGroupPane<T extends ArabicSupport> extends VBox {
      * @param values
      */
     public void reset(T... values) {
-        ObservableList<ArabicLabelView> toggles = toggleGroup.getToggles();
-        toggles.forEach(view -> {
-            view.setSelected(false);
-            ArabicSupport label = view.getLabel();
-            if (values != null && label != null && ArrayUtils.contains(values, label)) {
-                view.setSelected(true);
-            }
-        });
+        toggleGroup.reset(values);
     }
 }

@@ -1,5 +1,6 @@
 package com.alphasystem.app.sarfengine.ui.control;
 
+import com.alphasystem.arabic.model.ArabicSupport;
 import com.sun.javafx.collections.TrackableObservableList;
 import com.sun.javafx.collections.VetoableListDecorator;
 import javafx.beans.property.*;
@@ -8,6 +9,8 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 
 import java.util.List;
+
+import static org.apache.commons.lang3.ArrayUtils.contains;
 
 /**
  * @author sali
@@ -139,6 +142,16 @@ public class ArabicLabelToggleGroup {
         }
         view.setSelected(selected);
         System.out.println("After: " + selectedLabels.size() + " : " + selected);
+    }
+
+    public void reset(ArabicSupport... values) {
+        toggles.forEach(view -> {
+            view.setSelected(false);
+            ArabicSupport label = view.getLabel();
+            if (values != null && label != null && contains(values, label)) {
+                view.setSelected(true);
+            }
+        });
     }
 
 }
