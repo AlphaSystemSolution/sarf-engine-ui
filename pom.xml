@@ -16,9 +16,15 @@
             <artifactId>engine-base</artifactId>
             <version>${sarf-engine-base.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.alphasystem.arabic</groupId>
+            <artifactId>arabic-keyboard-ui</artifactId>
+            <version>${arabic-keyboard-ui.version}</version>
+        </dependency>
     </dependencies>
     <properties>
         <maven.test.skip>true</maven.test.skip>
         <sarf-engine-base.version>${project.version}</sarf-engine-base.version>
+        <arabic-keyboard-ui.version>${project.version}</arabic-keyboard-ui.version>
     </properties>
 </project>
