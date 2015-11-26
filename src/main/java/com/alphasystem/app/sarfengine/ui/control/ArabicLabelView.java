@@ -7,6 +7,7 @@ import javafx.scene.control.Control;
 import javafx.scene.control.Skin;
 import javafx.scene.text.Font;
 
+import static javafx.beans.binding.Bindings.when;
 import static javafx.scene.text.FontPosture.REGULAR;
 import static javafx.scene.text.FontWeight.BLACK;
 
@@ -41,6 +42,10 @@ public class ArabicLabelView extends Control {
         setLabelWidth(DEFAULT_WIDTH);
         setLabelHeight(DEFAULT_HEIGHT);
         setFont(DEFAULT_FONT);
+        ObjectProperty<ArabicSupport> obj = new SimpleObjectProperty<>();
+        obj.set(label);
+        disableProperty().bind(when(obj.isNull()).then(true).otherwise(false));
+        selectedProperty().addListener((o, oV, nV) -> makeSelection(nV));
         setSelected(false);
     }
 
@@ -123,16 +128,21 @@ public class ArabicLabelView extends Control {
     }
 
     public void makeSelection() {
-        System.out.println("::::::::::::::::::: " + this);
-        if (getLabel() == null) {
+        if (!isDisable()) {
+            setSelected(!isSelected());
+        }
+    }
+
+    private void makeSelection(Boolean value) {
+        if (getLabel() == null || isDisabled()) {
+            setSelected(false);
             return;
         }
         ArabicLabelToggleGroup group = getGroup();
-        boolean selected = !isSelected();
         if (group == null) {
-            setSelected(selected);
+            setSelected(value);
         } else {
-            group.setSelected(this, selected);
+            group.setSelected(this, value);
         }
     }
 }
