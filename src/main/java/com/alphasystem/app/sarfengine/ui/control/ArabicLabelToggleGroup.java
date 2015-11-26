@@ -2,10 +2,7 @@ package com.alphasystem.app.sarfengine.ui.control;
 
 import com.sun.javafx.collections.TrackableObservableList;
 import com.sun.javafx.collections.VetoableListDecorator;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -17,6 +14,8 @@ import java.util.List;
  */
 public class ArabicLabelToggleGroup {
 
+    private final DoubleProperty width = new SimpleDoubleProperty(0, "width");
+    private final DoubleProperty height = new SimpleDoubleProperty(0, "width");
     private final BooleanProperty multipleSelect = new SimpleBooleanProperty(true, "multipleSelect");
     private final ObjectProperty<ArabicLabelView> selectedLabel = new SimpleObjectProperty<>(null, "selectedLabel");
     private final ObservableList<ArabicLabelView> selectedLabels = FXCollections.observableArrayList();
@@ -38,6 +37,14 @@ public class ArabicLabelToggleGroup {
                                 t.getGroup().getToggles().remove(t);
                             }
                             t.setGroup(ArabicLabelToggleGroup.this);
+                            double width = getWidth();
+                            if (width > 0) {
+                                t.setLabelWidth(width);
+                            }
+                            double height = getHeight();
+                            if (height > 0) {
+                                t.setLabelHeight(height);
+                            }
                         });
 
                     } // end of "while (c.next())"
@@ -78,6 +85,30 @@ public class ArabicLabelToggleGroup {
 
     public final ObjectProperty<ArabicLabelView> selectedLabelProperty() {
         return selectedLabel;
+    }
+
+    public final double getWidth() {
+        return width.get();
+    }
+
+    public final void setWidth(double width) {
+        this.width.set(width);
+    }
+
+    public final DoubleProperty widthProperty() {
+        return width;
+    }
+
+    public final double getHeight() {
+        return height.get();
+    }
+
+    public final void setHeight(double height) {
+        this.height.set(height);
+    }
+
+    public final DoubleProperty heightProperty() {
+        return height;
     }
 
     public final ObservableList<ArabicLabelView> getToggles() {

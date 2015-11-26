@@ -9,5 +9,7 @@ public class AdverbPane extends ArabicSupportGroupPane<NounOfPlaceAndTime> {
 
     public AdverbPane(NounOfPlaceAndTime[] srcValues) {
         super(6, srcValues);
+        toggleGroup.setWidth(96);
+        toggleGroup.setHeight(96);
     }
 }

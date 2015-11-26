@@ -16,7 +16,7 @@ public class ArabicSupportGroupPane<T extends ArabicSupport> extends VBox {
     private static final int NUM_OF_COLUMNS = 8;
     private static final double SPACING = 10.0;
 
-    private final ArabicLabelToggleGroup toggleGroup = new ArabicLabelToggleGroup();
+    protected final ArabicLabelToggleGroup toggleGroup = new ArabicLabelToggleGroup();
 
     public ArabicSupportGroupPane(T[] srcValues) {
         this(NUM_OF_COLUMNS, srcValues);

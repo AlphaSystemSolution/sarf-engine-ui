@@ -38,7 +38,7 @@ public class SarfEngineApp extends Application {
 
         AdverbPane adverbPane = new AdverbPane(NounOfPlaceAndTime.values());
         BorderPane pane = new BorderPane();
-        pane.setCenter(adverbPane);
+        pane.setCenter(verbalNounPane);
         Scene scene = new Scene(pane);
         primaryStage.setMaximized(true);
         primaryStage.setScene(scene);
