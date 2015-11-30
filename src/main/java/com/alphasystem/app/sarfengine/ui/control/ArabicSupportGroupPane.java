@@ -4,24 +4,28 @@ import com.alphasystem.arabic.model.ArabicSupport;
 import javafx.collections.ObservableList;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
 
+import static com.alphasystem.util.AppUtil.getResource;
 import static org.apache.commons.lang3.ArrayUtils.*;
 
 /**
  * @author sali
  */
-public class ArabicSupportGroupPane<T extends ArabicSupport> extends VBox {
+public abstract class ArabicSupportGroupPane<T extends ArabicSupport> extends VBox {
 
     private static final int NUM_OF_COLUMNS = 8;
     private static final double SPACING = 10.0;
 
     protected final ArabicLabelToggleGroup toggleGroup = new ArabicLabelToggleGroup();
 
-    public ArabicSupportGroupPane(T[] srcValues) {
+    protected ArabicSupportGroupPane(T[] srcValues) {
         this(NUM_OF_COLUMNS, srcValues);
     }
 
-    public ArabicSupportGroupPane(int numOfColumns, T[] srcValues) {
+    protected ArabicSupportGroupPane(int numOfColumns, T[] srcValues) {
+        initToggleGroup();
+
         numOfColumns = (numOfColumns <= 0) ? NUM_OF_COLUMNS : numOfColumns;
 
         ArabicSupport[] values = new ArabicSupport[0];
@@ -50,10 +54,30 @@ public class ArabicSupportGroupPane<T extends ArabicSupport> extends VBox {
             startIndex = endIndex;
             endIndex += numOfColumns;
         }
+        setMinWidth(USE_PREF_SIZE);
+        setMaxWidth(USE_PREF_SIZE);
+        double width = toggleGroup.getWidth();
+        int prefWidth = (int) ((width * numOfColumns) + (SPACING * numOfColumns));
+        prefWidth = ((prefWidth + 99) / 100) * 100;
+        setPrefWidth(prefWidth);
+
+        getStyleClass().addAll("popup");
+    }
+
+    protected void initToggleGroup() {
+        toggleGroup.setWidth(48);
+        toggleGroup.setHeight(32);
+        toggleGroup.setFont(Font.font("Arabic Typesetting", 20.0));
+    }
+
+    @Override
+    public String getUserAgentStylesheet() {
+        return getResource("sarf-engine-ui.css").toExternalForm();
     }
 
     public ObservableList<ArabicLabelView> getSelectedValues() {
-        return toggleGroup.getSelectedLabels();
+        ObservableList<ArabicLabelView> selectedLabels = toggleGroup.getSelectedLabels();
+        return selectedLabels;
     }
 
     /**

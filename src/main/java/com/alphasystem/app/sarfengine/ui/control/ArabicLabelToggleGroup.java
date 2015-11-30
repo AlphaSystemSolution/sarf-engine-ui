@@ -6,10 +6,13 @@ import com.sun.javafx.collections.VetoableListDecorator;
 import javafx.beans.property.*;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.scene.text.Font;
 
 import java.util.List;
 
 import static javafx.collections.FXCollections.observableArrayList;
+import static javafx.scene.text.FontPosture.REGULAR;
+import static javafx.scene.text.FontWeight.BLACK;
 import static org.apache.commons.lang3.ArrayUtils.contains;
 
 /**
@@ -17,8 +20,11 @@ import static org.apache.commons.lang3.ArrayUtils.contains;
  */
 public class ArabicLabelToggleGroup {
 
+    public static final Font DEFAULT_FONT = Font.font("Arabic Typesetting", BLACK, REGULAR, 36.0);
+
     private final DoubleProperty width = new SimpleDoubleProperty(0, "width");
     private final DoubleProperty height = new SimpleDoubleProperty(0, "width");
+    private final ObjectProperty<Font> font = new SimpleObjectProperty<>(null, "font");
     private final BooleanProperty multipleSelect = new SimpleBooleanProperty(true, "multipleSelect");
     private final ObjectProperty<ArabicLabelView> selectedLabel = new SimpleObjectProperty<>(null, "selectedLabel");
     private final ObservableList<ArabicLabelView> selectedLabels = observableArrayList();
@@ -40,6 +46,9 @@ public class ArabicLabelToggleGroup {
                                 t.getGroup().getToggles().remove(t);
                             }
                             t.setGroup(ArabicLabelToggleGroup.this);
+                        });
+
+                        c.getAddedSubList().stream().filter(t -> ArabicLabelToggleGroup.this.equals(t.getGroup())).forEach(t -> {
                             double width = getWidth();
                             if (width > 0) {
                                 t.setLabelWidth(width);
@@ -47,6 +56,10 @@ public class ArabicLabelToggleGroup {
                             double height = getHeight();
                             if (height > 0) {
                                 t.setLabelHeight(height);
+                            }
+                            Font font = getFont();
+                            if (font != null) {
+                                t.setFont(font);
                             }
                         });
 
@@ -112,6 +125,18 @@ public class ArabicLabelToggleGroup {
 
     public final DoubleProperty heightProperty() {
         return height;
+    }
+
+    public final Font getFont() {
+        return font.get();
+    }
+
+    public final void setFont(Font font) {
+        this.font.set(font);
+    }
+
+    public final ObjectProperty<Font> fontProperty() {
+        return font;
     }
 
     public final ObservableList<ArabicLabelView> getToggles() {

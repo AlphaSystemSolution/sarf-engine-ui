@@ -27,6 +27,13 @@ public class ArabicLabelViewSkin extends SkinBase<ArabicLabelView> {
 
         final Text label = new Text();
         label.setFont(view.getFont());
+        label.fontProperty().bind(view.fontProperty());
+        view.fontProperty().addListener((o, ov, nv) -> {
+            if (nv != null) {
+                System.out.println(nv);
+                label.setFont(nv);
+            }
+        });
         label.setOnMouseClicked(event -> makeSelection(view));
         view.labelProperty().addListener((o, oV, nV) -> {
             label.setText(getLabelText(nV));
@@ -50,6 +57,7 @@ public class ArabicLabelViewSkin extends SkinBase<ArabicLabelView> {
             }
         });
         background.strokeProperty().bind(when(view.readonlySelectedProperty()).then(RED).otherwise(BLACK));
+        background.strokeWidthProperty().bind(when(view.readonlySelectedProperty()).then(2).otherwise(1));
         stackPane.disableProperty().bind(view.disabledProperty());
 
         stackPane.getChildren().addAll(background, label);

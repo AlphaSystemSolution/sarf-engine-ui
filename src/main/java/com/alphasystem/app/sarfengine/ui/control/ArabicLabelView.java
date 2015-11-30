@@ -7,8 +7,7 @@ import javafx.scene.control.Control;
 import javafx.scene.control.Skin;
 import javafx.scene.text.Font;
 
-import static javafx.scene.text.FontPosture.REGULAR;
-import static javafx.scene.text.FontWeight.BLACK;
+import static com.alphasystem.app.sarfengine.ui.control.ArabicLabelToggleGroup.DEFAULT_FONT;
 
 /**
  * @author sali
@@ -17,7 +16,6 @@ public class ArabicLabelView extends Control {
 
     private static final int DEFAULT_WIDTH = 64;
     private static final int DEFAULT_HEIGHT = 64;
-    private static final Font DEFAULT_FONT = Font.font("Arabic Typesetting", BLACK, REGULAR, 36.0);
 
     private final DoubleProperty labelWidth = new SimpleDoubleProperty(DEFAULT_WIDTH, "width");
     private final DoubleProperty labelHeight = new SimpleDoubleProperty(DEFAULT_HEIGHT, "height");
