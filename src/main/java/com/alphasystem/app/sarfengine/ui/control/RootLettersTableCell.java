@@ -1,20 +1,18 @@
 package com.alphasystem.app.sarfengine.ui.control;
 
 import com.alphasystem.app.sarfengine.ui.control.model.TableModel;
-import com.alphasystem.arabic.model.ArabicLetterType;
+import com.alphasystem.arabic.model.ArabicSupport;
 import com.alphasystem.sarfengine.xml.model.RootLetters;
 import javafx.geometry.Bounds;
 import javafx.scene.Group;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
-import javafx.scene.input.KeyCode;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Popup;
 
 import static com.alphasystem.app.sarfengine.ui.SarfEnginePane.ARABIC_FONT;
 import static javafx.scene.control.ContentDisplay.GRAPHIC_ONLY;
-import static javafx.scene.input.KeyEvent.KEY_PRESSED;
 
 /**
  * @author sali
@@ -30,12 +28,7 @@ public class RootLettersTableCell extends TableCell<TableModel, RootLetters> {
         popup = new Popup();
         keyBoard = new RootLettersPickerKeyBoard(this, new RootLetters());
         popup.getContent().add(keyBoard);
-        popup.addEventFilter(KEY_PRESSED, event -> {
-            // do nothing on "ESCAPE" key
-            if (KeyCode.ESCAPE.equals(event.getCode())) {
-                event.consume();
-            }
-        });
+        popup.setHideOnEscape(false);
     }
 
     @Override
@@ -69,9 +62,9 @@ public class RootLettersTableCell extends TableCell<TableModel, RootLetters> {
         setGraphic(label);
     }
 
-    private Text createLabel(ArabicLetterType letter) {
+    private Text createLabel(ArabicSupport letter) {
         Text text = new Text();
-        text.setText(letter == null ? "" : letter.toUnicode());
+        text.setText(letter == null ? "" : letter.getLabel().toUnicode());
         text.setFont(ARABIC_FONT);
         return text;
     }

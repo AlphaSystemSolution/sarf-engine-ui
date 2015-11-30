@@ -85,7 +85,7 @@ public class RootLettersPickerKeyBoard extends VBox {
         row.getChildren().add(doneButton);
         getChildren().addAll(flowPane, createRow(ROW_1), createRow(ROW_2), row);
         setFocusTraversable(true);
-        getStyleClass().addAll("key-board");
+        getStyleClass().addAll("popup");
 
         rootLettersProperty().addListener((o, oV, nV) -> {
             if (nV != null) {
