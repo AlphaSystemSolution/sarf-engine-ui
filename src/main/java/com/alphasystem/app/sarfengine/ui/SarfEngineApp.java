@@ -1,15 +1,15 @@
 package com.alphasystem.app.sarfengine.ui;
 
-import com.alphasystem.app.sarfengine.ui.control.AdverbPane;
-import com.alphasystem.app.sarfengine.ui.control.VerbalNounPane;
-import com.alphasystem.sarfengine.xml.model.NounOfPlaceAndTime;
-import com.alphasystem.sarfengine.xml.model.VerbalNoun;
+import com.alphasystem.sarfengine.xml.model.ConjugationData;
+import com.alphasystem.sarfengine.xml.model.ConjugationTemplate;
+import com.alphasystem.sarfengine.xml.model.RootLetters;
 import javafx.application.Application;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
-import javafx.scene.layout.BorderPane;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+
+import static com.alphasystem.arabic.model.ArabicLetterType.*;
 
 /**
  * @author sali
@@ -34,11 +34,12 @@ public class SarfEngineApp extends Application {
         primaryStage.setWidth(bounds.getWidth() / 4);
         primaryStage.setHeight(bounds.getHeight() / 4);
 
-        VerbalNounPane verbalNounPane = new VerbalNounPane(VerbalNoun.values());
-
-        AdverbPane adverbPane = new AdverbPane(NounOfPlaceAndTime.values());
-        BorderPane pane = new BorderPane();
-        pane.setCenter(verbalNounPane);
+        ConjugationTemplate template = new ConjugationTemplate();
+        ConjugationData data = new ConjugationData();
+        RootLetters rootLetters = new RootLetters().withFirstRadical(FA).withSecondRadical(AIN).withThirdRadical(LAM);
+        data.withRootLetters(rootLetters);
+        template.getData().add(data);
+        SarfEnginePane pane = new SarfEnginePane(template);
         Scene scene = new Scene(pane);
         primaryStage.setMaximized(true);
         primaryStage.setScene(scene);

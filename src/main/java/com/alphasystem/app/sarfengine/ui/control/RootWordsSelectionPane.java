@@ -1,7 +1,9 @@
 package com.alphasystem.app.sarfengine.ui.control;
 
 import com.alphasystem.arabic.model.ArabicLetter;
+import com.alphasystem.arabic.model.ArabicLetterType;
 import com.alphasystem.arabickeyboard.ui.Keyboard;
+import com.alphasystem.sarfengine.xml.model.RootLetters;
 import javafx.geometry.Insets;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
@@ -26,11 +28,13 @@ public class RootWordsSelectionPane extends VBox {
     private ArabicLabelView currentView;
 
     public RootWordsSelectionPane() {
-        this(null, null, null, null);
+        this(new RootLetters());
     }
 
-    public RootWordsSelectionPane(ArabicLetter firstRadical, ArabicLetter secondRadical, ArabicLetter thirdRadical,
-                                  ArabicLetter fourthRadical) {
+    public RootWordsSelectionPane(RootLetters rootLetters) {
+        if (rootLetters == null) {
+            rootLetters = new RootLetters();
+        }
         setSpacing(SPACING);
 
         FlowPane flowPane = new FlowPane();
@@ -40,10 +44,10 @@ public class RootWordsSelectionPane extends VBox {
 
         toggleGroup.setMultipleSelect(false);
 
-        labels[0] = createArabicLabelView(firstRadical);
-        labels[1] = createArabicLabelView(secondRadical);
-        labels[2] = createArabicLabelView(thirdRadical);
-        labels[3] = createArabicLabelView(fourthRadical);
+        labels[0] = createArabicLabelView(rootLetters.getFirstRadical());
+        labels[1] = createArabicLabelView(rootLetters.getSecondRadical());
+        labels[2] = createArabicLabelView(rootLetters.getThirdRadical());
+        labels[3] = createArabicLabelView(rootLetters.getFourthRadical());
 
         selectFirst();
         flowPane.getChildren().addAll(labels[0], labels[1], labels[2], labels[3]);
@@ -78,15 +82,23 @@ public class RootWordsSelectionPane extends VBox {
         currentView = labels[currentIndex];
     }
 
-    private ArabicLabelView createArabicLabelView(ArabicLetter arabicLetter) {
+    private ArabicLabelView createArabicLabelView(ArabicLetterType arabicLetter) {
         ArabicLabelView view = new ArabicLabelView(arabicLetter);
         view.setGroup(toggleGroup);
         return view;
     }
 
-    public void reset(ArabicLetter firstRadical, ArabicLetter secondRadical, ArabicLetter thirdRadical,
-                      ArabicLetter fourthRadical) {
-        toggleGroup.reset(firstRadical, secondRadical, thirdRadical, fourthRadical);
+    public void reset(RootLetters rootLetters) {
+        toggleGroup.reset(rootLetters.getFirstRadical(), rootLetters.getSecondRadical(), rootLetters.getThirdRadical(),
+                rootLetters.getFourthRadical());
         selectFirst();
     }
+
+    public RootLetters getRootLetters() {
+        return new RootLetters().withFirstRadical((ArabicLetterType) labels[0].getLabel())
+                .withSecondRadical((ArabicLetterType) labels[1].getLabel())
+                .withThirdRadical((ArabicLetterType) labels[2].getLabel())
+                .withFourthRadical((ArabicLetterType) labels[3].getLabel());
+    }
+
 }
