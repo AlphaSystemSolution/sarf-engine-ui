@@ -4,7 +4,6 @@ import com.alphasystem.arabic.model.NamedTemplate;
 import com.alphasystem.sarfengine.xml.model.*;
 import javafx.beans.property.*;
 import javafx.collections.ObservableList;
-import javafx.scene.paint.Color;
 
 import static com.alphasystem.arabic.model.NamedTemplate.FORM_I_CATEGORY_A_GROUP_U_TEMPLATE;
 import static java.lang.Boolean.FALSE;
@@ -23,7 +22,6 @@ public final class TableModel {
     private final ObservableList<NounOfPlaceAndTime> adverbs = observableArrayList();
     private final BooleanProperty removePassiveLine = new SimpleBooleanProperty(FALSE, "removePassiveLine");
     private final BooleanProperty skipRuleProcessing = new SimpleBooleanProperty(FALSE, "checked");
-    private final ObjectProperty<Color> color = new SimpleObjectProperty<>(Color.BROWN, "color");
 
     public TableModel() {
         this(new ConjugationData());
@@ -124,15 +122,4 @@ public final class TableModel {
         return skipRuleProcessing;
     }
 
-    public final Color getColor() {
-        return color.get();
-    }
-
-    public final void setColor(Color color) {
-        this.color.set(color);
-    }
-
-    public final ObjectProperty<Color> colorProperty() {
-        return color;
-    }
 }
