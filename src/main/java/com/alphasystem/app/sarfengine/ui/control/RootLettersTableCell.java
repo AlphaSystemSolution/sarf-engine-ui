@@ -1,17 +1,16 @@
 package com.alphasystem.app.sarfengine.ui.control;
 
 import com.alphasystem.app.sarfengine.ui.control.model.TableModel;
-import com.alphasystem.arabic.model.ArabicSupport;
 import com.alphasystem.sarfengine.xml.model.RootLetters;
 import javafx.geometry.Bounds;
 import javafx.scene.Group;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
-import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Popup;
 
-import static com.alphasystem.app.sarfengine.ui.SarfEnginePane.ARABIC_FONT;
+import static com.alphasystem.app.sarfengine.ui.Global.createLabel;
+import static com.alphasystem.app.sarfengine.ui.Global.createSpaceLabel;
 import static javafx.scene.control.ContentDisplay.GRAPHIC_ONLY;
 
 /**
@@ -54,18 +53,11 @@ public class RootLettersTableCell extends TableCell<TableModel, RootLetters> {
         if (item != null && !empty) {
             TextFlow textFlow = new TextFlow();
 
-            textFlow.getChildren().addAll(createLabel(item.getFirstRadical()), new Text(" "),
-                    createLabel(item.getSecondRadical()), new Text(" "), createLabel(item.getThirdRadical()),
-                    new Text(" "), createLabel(item.getFourthRadical()));
+            textFlow.getChildren().addAll(createLabel(item.getFirstRadical()), createSpaceLabel(),
+                    createLabel(item.getSecondRadical()), createSpaceLabel(), createLabel(item.getThirdRadical()),
+                    createSpaceLabel(), createLabel(item.getFourthRadical()));
             label = new Group(textFlow);
         }
         setGraphic(label);
-    }
-
-    private Text createLabel(ArabicSupport letter) {
-        Text text = new Text();
-        text.setText(letter == null ? "" : letter.getLabel().toUnicode());
-        text.setFont(ARABIC_FONT);
-        return text;
     }
 }

@@ -1,7 +1,7 @@
 package com.alphasystem.app.sarfengine.ui.control;
 
 import com.alphasystem.app.sarfengine.ui.control.model.TableModel;
-import com.alphasystem.sarfengine.xml.model.VerbalNoun;
+import com.alphasystem.sarfengine.xml.model.NounOfPlaceAndTime;
 import javafx.collections.ObservableList;
 import javafx.geometry.Bounds;
 import javafx.scene.Group;
@@ -19,29 +19,29 @@ import static javafx.scene.control.ContentDisplay.GRAPHIC_ONLY;
 /**
  * @author sali
  */
-public class VerbalNounTableCell extends TableCell<TableModel, ObservableList<VerbalNoun>> {
+public class AdverbTableCell extends TableCell<TableModel, ObservableList<NounOfPlaceAndTime>> {
 
     private final Popup popup;
-    private final VerbalNounPane verbalNounPane;
+    private final AdverbPane adverbPane;
 
-    public VerbalNounTableCell(TableColumn<TableModel, ObservableList<VerbalNoun>> column) {
+    public AdverbTableCell(TableColumn<TableModel, ObservableList<NounOfPlaceAndTime>> column) {
         setContentDisplay(GRAPHIC_ONLY);
 
-        verbalNounPane = new VerbalNounPane();
+        adverbPane = new AdverbPane();
         popup = new Popup();
-        popup.getContent().add(verbalNounPane);
+        popup.getContent().add(adverbPane);
         popup.setHideOnEscape(false);
 
         Button doneButton = new Button("          Done          ");
         doneButton.setOnAction(event -> {
-            commitEdit(verbalNounPane.getSelectedValues());
+            commitEdit(adverbPane.getSelectedValues());
             popup.hide();
         });
         FlowPane flowPane = new FlowPane();
         flowPane.getChildren().add(doneButton);
         flowPane.setAlignment(CENTER);
 
-        verbalNounPane.getChildren().add(doneButton);
+        adverbPane.getChildren().add(doneButton);
     }
 
     @Override
@@ -52,7 +52,7 @@ public class VerbalNounTableCell extends TableCell<TableModel, ObservableList<Ve
     }
 
     @Override
-    protected void updateItem(ObservableList<VerbalNoun> item, boolean empty) {
+    protected void updateItem(ObservableList<NounOfPlaceAndTime> item, boolean empty) {
         super.updateItem(item, empty);
 
         Group graphic = null;
