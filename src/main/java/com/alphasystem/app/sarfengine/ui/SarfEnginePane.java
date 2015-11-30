@@ -1,11 +1,13 @@
 package com.alphasystem.app.sarfengine.ui;
 
 import com.alphasystem.app.sarfengine.ui.control.RootLettersTableCell;
+import com.alphasystem.app.sarfengine.ui.control.VerbalNounTableCell;
 import com.alphasystem.app.sarfengine.ui.control.model.TableModel;
 import com.alphasystem.arabic.model.NamedTemplate;
 import com.alphasystem.sarfengine.xml.model.ConjugationData;
 import com.alphasystem.sarfengine.xml.model.ConjugationTemplate;
 import com.alphasystem.sarfengine.xml.model.RootLetters;
+import com.alphasystem.sarfengine.xml.model.VerbalNoun;
 import javafx.collections.ObservableList;
 import javafx.scene.Group;
 import javafx.scene.Node;
@@ -21,10 +23,12 @@ import javafx.scene.text.*;
 import java.util.List;
 
 import static com.alphasystem.arabic.ui.ComboBoxHelper.createComboBox;
+import static java.lang.String.format;
 import static javafx.collections.FXCollections.observableArrayList;
 import static javafx.geometry.NodeOrientation.RIGHT_TO_LEFT;
 import static javafx.scene.control.ContentDisplay.GRAPHIC_ONLY;
 import static javafx.scene.control.ScrollPane.ScrollBarPolicy.AS_NEEDED;
+import static javafx.scene.control.SelectionMode.SINGLE;
 import static javafx.scene.text.TextAlignment.CENTER;
 
 /**
@@ -47,6 +51,7 @@ public class SarfEnginePane extends BorderPane {
         dataList.forEach(data -> tableModels.add(new TableModel(data)));
         tableModels.add(new TableModel());
         tableView = new TableView<>(tableModels);
+        tableView.getSelectionModel().setSelectionMode(SINGLE);
         tableView.setPrefSize(640, 640);
         tableView.setEditable(true);
 
@@ -100,7 +105,7 @@ public class SarfEnginePane extends BorderPane {
                 TextFlow textFlow = new TextFlow();
                 Node graphic = null;
                 if (item != null && !empty) {
-                    labelText.setText(String.format("(%s) ", item.getCode()));
+                    labelText.setText(format("(%s) ", item.getCode()));
                     arabicText.setText(item.getLabel().toUnicode());
                     textFlow.getChildren().addAll(labelText, arabicText);
                     graphic = new Group(textFlow);
@@ -109,7 +114,14 @@ public class SarfEnginePane extends BorderPane {
             }
         });
 
-        tableView.getColumns().addAll(rootLettersColumn, templateColumn);
+        TableColumn<TableModel, ObservableList<VerbalNoun>> verbalNounsColumn = new TableColumn<>();
+        verbalNounsColumn.setText("Verbal Nouns");
+        verbalNounsColumn.setPrefWidth(200);
+        verbalNounsColumn.setEditable(true);
+        verbalNounsColumn.setCellValueFactory(new PropertyValueFactory<>("verbalNouns"));
+        verbalNounsColumn.setCellFactory(param -> new VerbalNounTableCell());
+
+        tableView.getColumns().addAll(rootLettersColumn, templateColumn, verbalNounsColumn);
         ScrollPane scrollPane = new ScrollPane(tableView);
         scrollPane.setVbarPolicy(AS_NEEDED);
         scrollPane.setHbarPolicy(AS_NEEDED);
