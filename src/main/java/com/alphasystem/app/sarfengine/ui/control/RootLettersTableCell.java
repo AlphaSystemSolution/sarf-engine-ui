@@ -1,6 +1,7 @@
 package com.alphasystem.app.sarfengine.ui.control;
 
 import com.alphasystem.app.sarfengine.ui.control.model.TableModel;
+import com.alphasystem.arabic.model.ArabicLetterType;
 import com.alphasystem.sarfengine.xml.model.RootLetters;
 import javafx.geometry.Bounds;
 import javafx.scene.Group;
@@ -28,11 +29,13 @@ public class RootLettersTableCell extends TableCell<TableModel, RootLetters> {
         setContentDisplay(GRAPHIC_ONLY);
 
         popup = new Popup();
-        keyBoard = new RootLettersPickerKeyBoard(new RootLetters());
+        keyBoard = new RootLettersPickerKeyBoard();
 
         Button doneButton = new Button("          Done          ");
         doneButton.setOnAction(event -> {
-            commitEdit(keyBoard.getRootLetters());
+            ArabicLetterType[] rootLetters = keyBoard.getRootLetters();
+            commitEdit(new RootLetters().withFirstRadical(rootLetters[0]).withSecondRadical(rootLetters[1])
+                    .withThirdRadical(rootLetters[2]).withFourthRadical(rootLetters[3]));
             popup.hide();
         });
 
@@ -50,7 +53,9 @@ public class RootLettersTableCell extends TableCell<TableModel, RootLetters> {
     public void startEdit() {
         super.startEdit();
 
-        keyBoard.setRootLetters(getItem());
+        RootLetters rootLetters = getItem();
+        keyBoard.setRootLetters(rootLetters.getFirstRadical(), rootLetters.getSecondRadical(),
+                rootLetters.getThirdRadical(), rootLetters.getFourthRadical());
         final Bounds bounds = localToScreen(getBoundsInLocal());
         popup.show(this, bounds.getMinX(), bounds.getMinY() + bounds.getHeight());
     }

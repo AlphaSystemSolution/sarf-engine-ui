@@ -3,7 +3,6 @@ package com.alphasystem.app.sarfengine.ui.control;
 import com.alphasystem.arabic.model.ArabicLetterType;
 import com.alphasystem.arabic.ui.ArabicLabelToggleGroup;
 import com.alphasystem.arabic.ui.ArabicLabelView;
-import com.alphasystem.sarfengine.xml.model.RootLetters;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Insets;
@@ -34,14 +33,19 @@ public class RootLettersPickerKeyBoard extends VBox {
 
     private final ArabicLabelToggleGroup group;
     private final ArabicLabelView[] labels = new ArabicLabelView[4];
-    private final ObjectProperty<RootLetters> rootLetters = new SimpleObjectProperty<>();
+    private final ObjectProperty<ArabicLetterType> firstRadical = new SimpleObjectProperty<>();
+    private final ObjectProperty<ArabicLetterType> secondRadical = new SimpleObjectProperty<>();
+    private final ObjectProperty<ArabicLetterType> thirdRadical = new SimpleObjectProperty<>();
+    private final ObjectProperty<ArabicLetterType> fourthRadical = new SimpleObjectProperty<>();
     private int currentIndex;
     private ArabicLabelView currentView;
 
-    /**
-     * @param rootLetters current {@link RootLetters}
-     */
-    public RootLettersPickerKeyBoard(final RootLetters rootLetters) {
+    public RootLettersPickerKeyBoard() {
+        this(null, null, null, null);
+    }
+
+    public RootLettersPickerKeyBoard(final ArabicLetterType firstRadical, final ArabicLetterType secondRadical,
+                                     final ArabicLetterType thirdRadical, final ArabicLetterType fourthRadical) {
         group = new ArabicLabelToggleGroup();
         group.setMultipleSelect(false);
         group.setWidth(32);
@@ -50,21 +54,21 @@ public class RootLettersPickerKeyBoard extends VBox {
         setPadding(new Insets(SPACING, SPACING, SPACING, SPACING));
         setSpacing(SPACING);
 
-        labels[0] = createLabel(rootLetters.getFirstRadical(), 0);
+        labels[0] = createLabel(firstRadical, 0);
         labels[0].labelProperty().addListener((o, oV, nV) -> {
-            getRootLetters().setFirstRadical((ArabicLetterType) nV);
+            firstRadicalProperty().setValue((ArabicLetterType) nV);
         });
-        labels[1] = createLabel(rootLetters.getSecondRadical(), 1);
+        labels[1] = createLabel(secondRadical, 1);
         labels[1].labelProperty().addListener((o, oV, nV) -> {
-            getRootLetters().setSecondRadical((ArabicLetterType) nV);
+            secondRadicalProperty().setValue((ArabicLetterType) nV);
         });
-        labels[2] = createLabel(rootLetters.getThirdRadical(), 2);
+        labels[2] = createLabel(thirdRadical, 2);
         labels[2].labelProperty().addListener((o, oV, nV) -> {
-            getRootLetters().setThirdRadical((ArabicLetterType) nV);
+            thirdRadicalProperty().setValue((ArabicLetterType) nV);
         });
-        labels[3] = createLabel(rootLetters.getFourthRadical(), 3);
+        labels[3] = createLabel(fourthRadical, 3);
         labels[3].labelProperty().addListener((o, oV, nV) -> {
-            getRootLetters().setFourthRadical((ArabicLetterType) nV);
+            fourthRadicalProperty().setValue((ArabicLetterType) nV);
         });
         selectFirst();
 
@@ -78,19 +82,56 @@ public class RootLettersPickerKeyBoard extends VBox {
         setFocusTraversable(true);
         getStyleClass().addAll("popup");
 
-        rootLettersProperty().addListener((o, oV, nV) -> {
-            if (nV != null) {
-                labels[0].setLabel(nV.getFirstRadical());
-                labels[1].setLabel(nV.getSecondRadical());
-                labels[2].setLabel(nV.getThirdRadical());
-                labels[3].setLabel(nV.getFourthRadical());
-            }
-        });
-        setRootLetters(rootLetters);
+        initializeListeners();
+
+        setRootLetters(firstRadical, secondRadical, thirdRadical, fourthRadical);
     }
 
-    public final ObjectProperty<RootLetters> rootLettersProperty() {
-        return rootLetters;
+    private void initializeListeners() {
+        firstRadicalProperty().addListener((o, ov, nv) -> {
+            labels[0].setLabel(nv);
+        });
+        secondRadicalProperty().addListener((o, ov, nv) -> {
+            labels[1].setLabel(nv);
+        });
+        thirdRadicalProperty().addListener((o, ov, nv) -> {
+            labels[2].setLabel(nv);
+        });
+        fourthRadicalProperty().addListener((o, ov, nv) -> {
+            labels[3].setLabel(nv);
+        });
+    }
+
+    public final ArabicLetterType getFirstRadical() {
+        return firstRadical.get();
+    }
+
+    public final ObjectProperty<ArabicLetterType> firstRadicalProperty() {
+        return firstRadical;
+    }
+
+    public final ArabicLetterType getSecondRadical() {
+        return secondRadical.get();
+    }
+
+    public final ObjectProperty<ArabicLetterType> secondRadicalProperty() {
+        return secondRadical;
+    }
+
+    public final ArabicLetterType getThirdRadical() {
+        return thirdRadical.get();
+    }
+
+    public final ObjectProperty<ArabicLetterType> thirdRadicalProperty() {
+        return thirdRadical;
+    }
+
+    public final ArabicLetterType getFourthRadical() {
+        return fourthRadical.get();
+    }
+
+    public final ObjectProperty<ArabicLetterType> fourthRadicalProperty() {
+        return fourthRadical;
     }
 
     @Override
@@ -151,17 +192,16 @@ public class RootLettersPickerKeyBoard extends VBox {
         return button;
     }
 
-    public final RootLetters getRootLetters() {
-        RootLetters rootLetters = this.rootLetters.get();
-        if (rootLetters == null) {
-            setRootLetters(new RootLetters());
-            rootLetters = this.rootLetters.get();
-        }
-        return rootLetters;
+    public final ArabicLetterType[] getRootLetters() {
+        return new ArabicLetterType[]{getFirstRadical(), getSecondRadical(), getThirdRadical(), getFourthRadical()};
     }
 
-    public final void setRootLetters(RootLetters rootLetters) {
-        this.rootLetters.set(rootLetters);
+    public final void setRootLetters(final ArabicLetterType firstRadical, final ArabicLetterType secondRadical,
+                                     final ArabicLetterType thirdRadical, final ArabicLetterType fourthRadical) {
+        firstRadicalProperty().setValue(firstRadical);
+        secondRadicalProperty().setValue(secondRadical);
+        thirdRadicalProperty().setValue(thirdRadical);
+        fourthRadicalProperty().setValue(fourthRadical);
     }
 
     private void selectFirst() {
