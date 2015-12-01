@@ -7,34 +7,36 @@ import com.alphasystem.app.sarfengine.ui.control.model.TableModel;
 import com.alphasystem.arabic.model.NamedTemplate;
 import com.alphasystem.sarfengine.xml.model.*;
 import javafx.collections.ObservableList;
-import javafx.geometry.Rectangle2D;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
-import javafx.stage.Screen;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.alphasystem.app.sarfengine.ui.Global.ARABIC_FONT_24;
 import static com.alphasystem.app.sarfengine.ui.Global.roundTo100;
 import static com.alphasystem.arabic.ui.ComboBoxHelper.createComboBox;
+import static com.alphasystem.util.AppUtil.getResourceAsStream;
 import static java.lang.Math.max;
 import static java.lang.String.format;
 import static javafx.collections.FXCollections.observableArrayList;
 import static javafx.geometry.NodeOrientation.RIGHT_TO_LEFT;
+import static javafx.scene.control.Alert.AlertType.CONFIRMATION;
 import static javafx.scene.control.ContentDisplay.GRAPHIC_ONLY;
 import static javafx.scene.control.ScrollPane.ScrollBarPolicy.AS_NEEDED;
 import static javafx.scene.control.SelectionMode.SINGLE;
+import static javafx.scene.control.TabPane.TabClosingPolicy.SELECTED_TAB;
 import static javafx.scene.control.cell.CheckBoxTableCell.forTableColumn;
-import static javafx.scene.input.KeyCode.D;
-import static javafx.scene.input.KeyCombination.CONTROL_DOWN;
 import static javafx.scene.text.TextAlignment.CENTER;
+import static javafx.stage.Screen.getPrimary;
 
 /**
  * @author sali
@@ -43,58 +45,21 @@ public class SarfEnginePane extends BorderPane {
 
     private static final double DEFAULT_MIN_HEIGHT = 500.0;
     private static final double ROW_SIZE = 40.0;
-    private final TableView<TableModel> tableView;
+    private static int counter = 1;
+    private final TabPane tabPane;
 
     @SuppressWarnings({"unchecked"})
-    public SarfEnginePane(ConjugationTemplate conjugationTemplate) {
-        if (conjugationTemplate == null) {
-            conjugationTemplate = new ConjugationTemplate();
-        }
+    public SarfEnginePane() {
+        tabPane = new TabPane();
+        tabPane.setTabClosingPolicy(SELECTED_TAB);
+        tabPane.getTabs().add(createTab());
 
-        Screen screen = Screen.getPrimary();
-        Rectangle2D bounds = screen.getVisualBounds();
-        double boundsWidth = bounds.getWidth();
+        setCenter(tabPane);
+        setTop(createToolBar());
+    }
 
-        ObservableList<TableModel> tableModels = observableArrayList();
-        List<ConjugationData> dataList = conjugationTemplate.getData();
-        if (dataList.isEmpty()) {
-            dataList.add(new ConjugationData());
-        }
-        dataList.forEach(data -> tableModels.add(new TableModel(data)));
-
-        tableView = new TableView<>(tableModels);
-        tableView.getSelectionModel().setSelectionMode(SINGLE);
-        tableView.setEditable(true);
-        initializeTable(boundsWidth);
-
-        tableView.setFixedCellSize(ROW_SIZE);
-        tableView.setPrefSize(boundsWidth, calculateTableHeight(tableModels.size()));
-        ScrollPane scrollPane = new ScrollPane(tableView);
-        scrollPane.setVbarPolicy(AS_NEEDED);
-        scrollPane.setHbarPolicy(AS_NEEDED);
-
-        setCenter(scrollPane);
-
-        MenuItem menuItem = new MenuItem("Debug");
-        menuItem.setOnAction(event -> {
-            ObservableList<TableModel> items = tableView.getItems();
-            items.forEach(tableModel -> {
-                RootLetters rootLetters = tableModel.getRootLetters();
-                System.out.println(format("Template: %s, Root Letters: %s %s %s", tableModel.getTemplate(),
-                        rootLetters.getFirstRadical().toCode(), rootLetters.getSecondRadical().toCode(),
-                        rootLetters.getThirdRadical().toCode()));
-            });
-            items.add(new TableModel());
-            tableView.setPrefHeight(calculateTableHeight(items.size()));
-        });
-        menuItem.setAccelerator(new KeyCodeCombination(D, CONTROL_DOWN));
-
-        MenuBar menuBar = new MenuBar();
-
-        Menu menu = new Menu("File");
-        menu.getItems().add(menuItem);
-        menuBar.getMenus().add(menu);
-        setTop(menuBar);
+    private static String createNewTabTitle() {
+        return format("Untitled %s", counter++);
     }
 
     private static double calculateTableHeight(int numOfRows) {
@@ -103,8 +68,97 @@ public class SarfEnginePane extends BorderPane {
         return max(height, DEFAULT_MIN_HEIGHT);
     }
 
+    private Tab createTab() {
+        Tab tab = new Tab(createNewTabTitle(), createTable(null));
+        tab.setOnCloseRequest(event -> {
+            Alert alert = new Alert(CONFIRMATION);
+            alert.setContentText("Do you  want to save data before closing?");
+            Optional<ButtonType> result = alert.showAndWait();
+            ButtonType buttonType = result.get();
+            ButtonBar.ButtonData buttonData = buttonType.getButtonData();
+            if (buttonData.isDefaultButton()) {
+                System.out.println("saving ...");
+            } else {
+                System.out.println("HERE");
+                event.consume();
+            }
+        });
+        return tab;
+    }
+
+    private ScrollPane createTable(ConjugationTemplate conjugationTemplate) {
+        if (conjugationTemplate == null) {
+            conjugationTemplate = new ConjugationTemplate();
+        }
+        ObservableList<TableModel> tableModels = observableArrayList();
+        List<ConjugationData> dataList = conjugationTemplate.getData();
+        if (dataList.isEmpty()) {
+            dataList.add(new ConjugationData());
+        }
+        dataList.forEach(data -> tableModels.add(new TableModel(data)));
+
+        double boundsWidth = getPrimary().getVisualBounds().getWidth();
+
+        TableView<TableModel> tableView = new TableView<>(tableModels);
+        tableView.getSelectionModel().setSelectionMode(SINGLE);
+        tableView.setEditable(true);
+        initializeTable(tableView, boundsWidth);
+
+        tableView.setFixedCellSize(ROW_SIZE);
+        tableView.setPrefSize(boundsWidth, calculateTableHeight(tableModels.size()));
+        ScrollPane scrollPane = new ScrollPane(tableView);
+        scrollPane.setVbarPolicy(AS_NEEDED);
+        scrollPane.setHbarPolicy(AS_NEEDED);
+
+        return scrollPane;
+    }
+
+    private ToolBar createToolBar() {
+        ToolBar toolBar = new ToolBar();
+
+        Button button;
+
+        button = new Button();
+        button.setTooltip(new Tooltip("Create New File"));
+        button.setGraphic(new ImageView(new Image(getResourceAsStream("images.new-file-icon.png"))));
+        button.setOnAction(event -> {
+            tabPane.getTabs().add(createTab());
+        });
+        toolBar.getItems().add(button);
+
+        button = new Button();
+        button.setTooltip(new Tooltip("Open File"));
+        button.setGraphic(new ImageView(new Image(getResourceAsStream("images.open-file-icon.png"))));
+        button.setOnAction(event -> {
+
+        });
+        toolBar.getItems().add(button);
+
+        toolBar.getItems().add(new Separator());
+        button = new Button();
+        button.setTooltip(new Tooltip("Add new Row"));
+        button.setGraphic(new ImageView(new Image(getResourceAsStream("images.root-Letters-icon.png"))));
+        button.setOnAction(event -> addNewRowAction());
+        toolBar.getItems().add(button);
+
+        return toolBar;
+    }
+
+    @SuppressWarnings({"unchecked"})
+    private void addNewRowAction() {
+        Tab selectedItem = tabPane.getSelectionModel().getSelectedItem();
+        if (selectedItem != null) {
+            ScrollPane scrollPane = (ScrollPane) selectedItem.getContent();
+            TableView<TableModel> tableView = (TableView<TableModel>) scrollPane.getContent();
+            ObservableList<TableModel> items = tableView.getItems();
+            items.add(new TableModel());
+            tableView.setPrefHeight(calculateTableHeight(items.size()));
+        }
+    }
+
+
     @SuppressWarnings("unchecked")
-    private void initializeTable(double boundsWidth) {
+    private void initializeTable(TableView<TableModel> tableView, double boundsWidth) {
         double largeColumnWidth = boundsWidth * 20 / 100;
         double mediumColumnWidth = boundsWidth * 8 / 100;
         double smallColumnWidth = boundsWidth * 4 / 100;
@@ -196,8 +250,8 @@ public class SarfEnginePane extends BorderPane {
         //TODO: figure out how to refresh Verbal Noun column with new values
         templateColumn.setOnEditCommit(event -> {
             NamedTemplate newValue = event.getNewValue();
-            TableView<TableModel> tableView = event.getTableView();
-            TableModel selectedItem = tableView.getSelectionModel().getSelectedItem();
+            TableView<TableModel> table = event.getTableView();
+            TableModel selectedItem = table.getSelectionModel().getSelectedItem();
             selectedItem.setTemplate(newValue);
 
             // TODO: figure out how to update table
@@ -216,14 +270,14 @@ public class SarfEnginePane extends BorderPane {
         });
 
         TableColumn<TableModel, Boolean> removePassiveLineColumn = new TableColumn<>();
-        removePassiveLineColumn.setText("Remove Passive Line");
+        removePassiveLineColumn.setText("Remove\nPassive\nLine");
         removePassiveLineColumn.setPrefWidth(mediumColumnWidth);
         removePassiveLineColumn.setEditable(true);
         removePassiveLineColumn.setCellValueFactory(new PropertyValueFactory<>("removePassiveLine"));
         removePassiveLineColumn.setCellFactory(forTableColumn(removePassiveLineColumn));
 
         TableColumn<TableModel, Boolean> skipRuleProcessingColumn = new TableColumn<>();
-        skipRuleProcessingColumn.setText("Skip Rule Processing");
+        skipRuleProcessingColumn.setText("Skip\nRule\nProcessing");
         skipRuleProcessingColumn.setPrefWidth(mediumColumnWidth);
         skipRuleProcessingColumn.setEditable(true);
         skipRuleProcessingColumn.setCellValueFactory(new PropertyValueFactory<>("skipRuleProcessing"));

@@ -26,7 +26,7 @@ public final class Global {
 
     // Fonts
     public static final Font ARABIC_FONT_24 = Font.font("Arabic Typesetting", BLACK, REGULAR, 24.0);
-
+    public static final Font ARABIC_FONT_20 = Font.font("Arabic Typesetting", BLACK, REGULAR, 20.0);
     public static final Font ENGLISH_FONT = Font.font("Candara", BLACK, REGULAR, 12.0);
 
     public static final Map<NamedTemplate, List<VerbalNoun>> VERBAL_NOUN_TEMPLATE_MAPPING = new LinkedHashMap<>();

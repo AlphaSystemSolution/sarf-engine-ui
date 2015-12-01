@@ -6,8 +6,8 @@ import com.alphasystem.arabic.ui.ArabicLabelView;
 import javafx.collections.ObservableList;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Font;
 
+import static com.alphasystem.app.sarfengine.ui.Global.ARABIC_FONT_20;
 import static com.alphasystem.app.sarfengine.ui.Global.roundTo100;
 import static com.alphasystem.util.AppUtil.getResource;
 import static javafx.collections.FXCollections.observableArrayList;
@@ -70,7 +70,7 @@ public abstract class ArabicSupportGroupPane<T extends ArabicSupport> extends VB
     protected void initToggleGroup() {
         toggleGroup.setWidth(48);
         toggleGroup.setHeight(32);
-        toggleGroup.setFont(Font.font("Arabic Typesetting", 20.0));
+        toggleGroup.setFont(ARABIC_FONT_20);
     }
 
     @Override
