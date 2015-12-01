@@ -1,6 +1,8 @@
 package com.alphasystem.app.sarfengine.ui.control;
 
 import com.alphasystem.arabic.model.ArabicSupport;
+import com.alphasystem.arabic.ui.ArabicLabelToggleGroup;
+import com.alphasystem.arabic.ui.ArabicLabelView;
 import javafx.collections.ObservableList;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;

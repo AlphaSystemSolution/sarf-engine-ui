@@ -2,6 +2,8 @@ package com.alphasystem.app.sarfengine.ui.control;
 
 import com.alphasystem.arabic.model.ArabicLetter;
 import com.alphasystem.arabic.model.ArabicLetterType;
+import com.alphasystem.arabic.ui.ArabicLabelToggleGroup;
+import com.alphasystem.arabic.ui.ArabicLabelView;
 import com.alphasystem.arabickeyboard.ui.Keyboard;
 import com.alphasystem.sarfengine.xml.model.RootLetters;
 import javafx.geometry.Insets;
