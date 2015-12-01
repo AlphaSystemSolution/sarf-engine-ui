@@ -1,6 +1,5 @@
 package com.alphasystem.app.sarfengine.ui.control;
 
-import com.alphasystem.app.sarfengine.ui.control.model.TableModel;
 import com.alphasystem.arabic.model.ArabicLetterType;
 import com.alphasystem.arabic.ui.ArabicLabelToggleGroup;
 import com.alphasystem.arabic.ui.ArabicLabelView;
@@ -10,7 +9,6 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
-import javafx.scene.control.TableCell;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
@@ -31,7 +29,7 @@ public class RootLettersPickerKeyBoard extends VBox {
     private static final ArabicLetterType[] ROW_1 = {DDAD, SAD, THA, QAF, FA, GHAIN, AIN, HHA, KHA, HA, JEEM, DAL, THAL};
     private static final ArabicLetterType[] ROW_2 = {SHEEN, SEEN, YA, BA, LAM, ALIF, TA, NOON, MEEM, KAF, TTA, null, null};
     private static final ArabicLetterType[] ROW_3 = {YA_HAMZA_ABOVE, HAMZA, WAW_HAMZA_ABOVE, RA, ALIF_MAKSURA,
-            TA_MARBUTA, WAW, ZAIN, DTHA, null, null};
+            TA_MARBUTA, WAW, ZAIN, DTHA, null, null, null, null};
     private static final Font FONT = Font.font("Arabic Typesetting", 24);
 
     private final ArabicLabelToggleGroup group;
@@ -41,10 +39,9 @@ public class RootLettersPickerKeyBoard extends VBox {
     private ArabicLabelView currentView;
 
     /**
-     * @param tableCell   current table cell
      * @param rootLetters current {@link RootLetters}
      */
-    public RootLettersPickerKeyBoard(final TableCell<TableModel, RootLetters> tableCell, final RootLetters rootLetters) {
+    public RootLettersPickerKeyBoard(final RootLetters rootLetters) {
         group = new ArabicLabelToggleGroup();
         group.setMultipleSelect(false);
         group.setWidth(32);
@@ -77,15 +74,7 @@ public class RootLettersPickerKeyBoard extends VBox {
         flowPane.getChildren().addAll(labels[0], labels[1], labels[2], labels[3]);
         flowPane.setAlignment(Pos.TOP_CENTER);
 
-        Button doneButton = new Button("Done");
-        doneButton.setPrefSize(PREF_WIDTH * 2 + SPACING, PREF_HEIGHT);
-        doneButton.setMinSize(USE_PREF_SIZE, USE_PREF_SIZE);
-        doneButton.setMaxSize(USE_PREF_SIZE, USE_PREF_SIZE);
-        doneButton.setOnAction(event -> tableCell.commitEdit(getRootLetters()));
-
-        FlowPane row = createRow(ROW_3);
-        row.getChildren().add(doneButton);
-        getChildren().addAll(flowPane, createRow(ROW_1), createRow(ROW_2), row);
+        getChildren().addAll(flowPane, createRow(ROW_1), createRow(ROW_2), createRow(ROW_3));
         setFocusTraversable(true);
         getStyleClass().addAll("popup");
 
@@ -163,7 +152,12 @@ public class RootLettersPickerKeyBoard extends VBox {
     }
 
     public final RootLetters getRootLetters() {
-        return rootLetters.get();
+        RootLetters rootLetters = this.rootLetters.get();
+        if (rootLetters == null) {
+            setRootLetters(new RootLetters());
+            rootLetters = this.rootLetters.get();
+        }
+        return rootLetters;
     }
 
     public final void setRootLetters(RootLetters rootLetters) {
