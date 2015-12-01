@@ -37,11 +37,18 @@ public abstract class ListTableCell<T extends ArabicSupport> extends TableCell<T
             commitEdit(groupPane.getSelectedValues());
             popup.hide();
         });
+
+        Button closeButton = new Button("          Close          ");
+        closeButton.setOnAction(event -> {
+            popup.hide();
+        });
+
         FlowPane flowPane = new FlowPane();
-        flowPane.getChildren().add(doneButton);
+        flowPane.setHgap(10);
+        flowPane.getChildren().addAll(doneButton, closeButton);
         flowPane.setAlignment(CENTER);
 
-        groupPane.getChildren().add(doneButton);
+        groupPane.getChildren().add(flowPane);
     }
 
     @Override
