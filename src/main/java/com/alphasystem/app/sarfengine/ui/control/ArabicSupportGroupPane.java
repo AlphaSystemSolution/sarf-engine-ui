@@ -8,6 +8,7 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 
+import static com.alphasystem.app.sarfengine.ui.Global.roundTo100;
 import static com.alphasystem.util.AppUtil.getResource;
 import static javafx.collections.FXCollections.observableArrayList;
 import static org.apache.commons.lang3.ArrayUtils.*;
@@ -60,9 +61,8 @@ public abstract class ArabicSupportGroupPane<T extends ArabicSupport> extends VB
         setMinWidth(USE_PREF_SIZE);
         setMaxWidth(USE_PREF_SIZE);
         double width = toggleGroup.getWidth();
-        int prefWidth = (int) ((width * numOfColumns) + (SPACING * numOfColumns));
-        prefWidth = ((prefWidth + 99) / 100) * 100;
-        setPrefWidth(prefWidth);
+        double prefWidth = (width + SPACING) * numOfColumns;
+        setPrefWidth(roundTo100(prefWidth));
 
         getStyleClass().addAll("popup");
     }

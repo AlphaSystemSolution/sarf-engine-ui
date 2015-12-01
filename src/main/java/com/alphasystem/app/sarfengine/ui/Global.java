@@ -68,4 +68,8 @@ public final class Global {
     public static Text createSpaceLabel() {
         return new Text(" ");
     }
+
+    public static double roundTo100(double srcValue) {
+        return (double) ((((int) srcValue) + 99) / 100) * 100;
+    }
 }

@@ -22,7 +22,9 @@ import javafx.stage.Screen;
 import java.util.List;
 
 import static com.alphasystem.app.sarfengine.ui.Global.ARABIC_FONT_24;
+import static com.alphasystem.app.sarfengine.ui.Global.roundTo100;
 import static com.alphasystem.arabic.ui.ComboBoxHelper.createComboBox;
+import static java.lang.Math.max;
 import static java.lang.String.format;
 import static javafx.collections.FXCollections.observableArrayList;
 import static javafx.geometry.NodeOrientation.RIGHT_TO_LEFT;
@@ -39,6 +41,8 @@ import static javafx.scene.text.TextAlignment.CENTER;
  */
 public class SarfEnginePane extends BorderPane {
 
+    private static final double DEFAULT_MIN_HEIGHT = 500.0;
+    private static final double ROW_SIZE = 40.0;
     private final TableView<TableModel> tableView;
 
     @SuppressWarnings({"unchecked"})
@@ -50,18 +54,21 @@ public class SarfEnginePane extends BorderPane {
         Screen screen = Screen.getPrimary();
         Rectangle2D bounds = screen.getVisualBounds();
         double boundsWidth = bounds.getWidth();
-        double largeColumnWidth = boundsWidth * 20 / 100;
-        double smallColumnWidth = boundsWidth * 9 / 100;
 
         ObservableList<TableModel> tableModels = observableArrayList();
         List<ConjugationData> dataList = conjugationTemplate.getData();
+        if (dataList.isEmpty()) {
+            dataList.add(new ConjugationData());
+        }
         dataList.forEach(data -> tableModels.add(new TableModel(data)));
+
         tableView = new TableView<>(tableModels);
         tableView.getSelectionModel().setSelectionMode(SINGLE);
-        tableView.setPrefSize(boundsWidth, 640);
         tableView.setEditable(true);
-        initializeTable(largeColumnWidth, smallColumnWidth);
+        initializeTable(boundsWidth);
 
+        tableView.setFixedCellSize(ROW_SIZE);
+        tableView.setPrefSize(boundsWidth, calculateTableHeight(tableModels.size()));
         ScrollPane scrollPane = new ScrollPane(tableView);
         scrollPane.setVbarPolicy(AS_NEEDED);
         scrollPane.setHbarPolicy(AS_NEEDED);
@@ -77,6 +84,8 @@ public class SarfEnginePane extends BorderPane {
                         rootLetters.getFirstRadical().toCode(), rootLetters.getSecondRadical().toCode(),
                         rootLetters.getThirdRadical().toCode()));
             });
+            items.add(new TableModel());
+            tableView.setPrefHeight(calculateTableHeight(items.size()));
         });
         menuItem.setAccelerator(new KeyCodeCombination(D, CONTROL_DOWN));
 
@@ -88,9 +97,25 @@ public class SarfEnginePane extends BorderPane {
         setTop(menuBar);
     }
 
+    private static double calculateTableHeight(int numOfRows) {
+        double height = numOfRows * ROW_SIZE + ROW_SIZE;
+        height = roundTo100(height);
+        return max(height, DEFAULT_MIN_HEIGHT);
+    }
+
     @SuppressWarnings("unchecked")
-    private void initializeTable(double largeColumnWidth, double smallColumnWidth) {
+    private void initializeTable(double boundsWidth) {
+        double largeColumnWidth = boundsWidth * 20 / 100;
+        double mediumColumnWidth = boundsWidth * 8 / 100;
+        double smallColumnWidth = boundsWidth * 4 / 100;
+
         // start adding columns
+        TableColumn<TableModel, Boolean> checkedColumn = new TableColumn<>();
+        checkedColumn.setPrefWidth(smallColumnWidth);
+        checkedColumn.setEditable(true);
+        checkedColumn.setCellValueFactory(new PropertyValueFactory<>("checked"));
+        checkedColumn.setCellFactory(forTableColumn(checkedColumn));
+
         TableColumn<TableModel, RootLetters> rootLettersColumn = new TableColumn<>();
         rootLettersColumn.setText("Root Letters");
         rootLettersColumn.setPrefWidth(largeColumnWidth);
@@ -192,20 +217,20 @@ public class SarfEnginePane extends BorderPane {
 
         TableColumn<TableModel, Boolean> removePassiveLineColumn = new TableColumn<>();
         removePassiveLineColumn.setText("Remove Passive Line");
-        removePassiveLineColumn.setPrefWidth(smallColumnWidth);
+        removePassiveLineColumn.setPrefWidth(mediumColumnWidth);
         removePassiveLineColumn.setEditable(true);
         removePassiveLineColumn.setCellValueFactory(new PropertyValueFactory<>("removePassiveLine"));
         removePassiveLineColumn.setCellFactory(forTableColumn(removePassiveLineColumn));
 
         TableColumn<TableModel, Boolean> skipRuleProcessingColumn = new TableColumn<>();
         skipRuleProcessingColumn.setText("Skip Rule Processing");
-        skipRuleProcessingColumn.setPrefWidth(smallColumnWidth);
+        skipRuleProcessingColumn.setPrefWidth(mediumColumnWidth);
         skipRuleProcessingColumn.setEditable(true);
         skipRuleProcessingColumn.setCellValueFactory(new PropertyValueFactory<>("skipRuleProcessing"));
         skipRuleProcessingColumn.setCellFactory(forTableColumn(skipRuleProcessingColumn));
 
-        tableView.getColumns().addAll(rootLettersColumn, templateColumn, verbalNounsColumn, adverbsColumn,
-                removePassiveLineColumn, skipRuleProcessingColumn);
+        tableView.getColumns().addAll(checkedColumn, rootLettersColumn, templateColumn, verbalNounsColumn,
+                adverbsColumn, removePassiveLineColumn, skipRuleProcessingColumn);
     }
 
 }
