@@ -24,7 +24,8 @@ public abstract class ListTableCell<T extends ArabicSupport> extends TableCell<T
     private final Popup popup;
     private final ArabicSupportGroupPane<T> groupPane;
 
-    public ListTableCell(TableColumn<TableModel, ObservableList<T>> column, ArabicSupportGroupPane<T> groupPane) {
+    public ListTableCell(@SuppressWarnings({"unused"}) TableColumn<TableModel, ObservableList<T>> column,
+                         ArabicSupportGroupPane<T> groupPane) {
         setContentDisplay(GRAPHIC_ONLY);
 
         this.groupPane = groupPane;
@@ -39,9 +40,7 @@ public abstract class ListTableCell<T extends ArabicSupport> extends TableCell<T
         });
 
         Button closeButton = new Button("          Close          ");
-        closeButton.setOnAction(event -> {
-            popup.hide();
-        });
+        closeButton.setOnAction(event -> popup.hide());
 
         FlowPane flowPane = new FlowPane();
         flowPane.setHgap(10);
