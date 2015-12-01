@@ -27,7 +27,7 @@ public class ArabicLabelToggleGroup {
     private final ObjectProperty<Font> font = new SimpleObjectProperty<>(null, "font");
     private final BooleanProperty multipleSelect = new SimpleBooleanProperty(true, "multipleSelect");
     private final ObjectProperty<ArabicLabelView> selectedLabel = new SimpleObjectProperty<>(null, "selectedLabel");
-    private final ObservableList<ArabicLabelView> selectedLabels = observableArrayList();
+    private final ObservableList<ArabicLabelView> selectedValues = observableArrayList();
     private final ObservableList<ArabicLabelView> toggles = new VetoableListDecorator<ArabicLabelView>
             (new TrackableObservableList<ArabicLabelView>() {
                 @Override
@@ -49,6 +49,13 @@ public class ArabicLabelToggleGroup {
                         });
 
                         c.getAddedSubList().stream().filter(t -> ArabicLabelToggleGroup.this.equals(t.getGroup())).forEach(t -> {
+                            t.readonlySelectedProperty().addListener((o, ov, nv) -> {
+                                if (nv) {
+                                    selectedValues.add(t);
+                                } else {
+                                    selectedValues.remove(t);
+                                }
+                            });
                             double width = getWidth();
                             if (width > 0) {
                                 t.setLabelWidth(width);
@@ -143,20 +150,18 @@ public class ArabicLabelToggleGroup {
         return toggles;
     }
 
-    public ObservableList<ArabicLabelView> getSelectedLabels() {
-        return selectedLabels;
+    public ObservableList<ArabicLabelView> getSelectedValues() {
+        return selectedValues;
     }
 
     public void setSelected(ArabicLabelView view, boolean selected) {
-        if (view == null || !selected) {
+        if (view == null) {
             return;
         }
         if (selected) {
-            selectedLabels.add(view);
             if (!isMultipleSelect()) {
                 ArabicLabelView selectedLabel = getSelectedLabel();
                 if (selectedLabel != null) {
-                    selectedLabels.remove(selectedLabel);
                     selectedLabel.readonlySelectedProperty().set(false);
                 }
                 setSelectedLabel(view);

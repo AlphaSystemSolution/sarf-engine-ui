@@ -57,6 +57,7 @@ public class VerbalNounTableCell extends TableCell<TableModel, ObservableList<Ve
 
         Group graphic = null;
         if (item != null && !item.isEmpty() && !empty) {
+            verbalNounPane.setSelectedValues(item.toArray(new VerbalNoun[item.size()]));
             graphic = new Group();
             TextFlow textFlow = new TextFlow();
             textFlow.getChildren().add(createLabel(item.get(0)));

@@ -135,7 +135,7 @@ public class ArabicLabelView extends Control {
         }
         ArabicLabelToggleGroup group = getGroup();
         if (value == null) {
-            value = !isSelected();
+            value = !readonlySelectedProperty().get();
         }
         if (group == null) {
             setSelected(value);
