@@ -89,9 +89,8 @@ public abstract class ArabicSupportGroupPane<T extends ArabicSupport> extends VB
      *
      * @param selectedValues values to be reset in toggle group
      */
-    @SafeVarargs
-    public final void setSelectedValues(T... selectedValues) {
-        toggleGroup.reset(selectedValues);
+    public final void setSelectedValues(ObservableList<T> selectedValues) {
+        toggleGroup.reset(selectedValues.toArray(new ArabicSupport[selectedValues.size()]));
     }
 
 }
