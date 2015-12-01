@@ -21,7 +21,7 @@ public final class TableModel {
     private final ObservableList<VerbalNoun> verbalNouns = observableArrayList();
     private final ObservableList<NounOfPlaceAndTime> adverbs = observableArrayList();
     private final BooleanProperty removePassiveLine = new SimpleBooleanProperty(FALSE, "removePassiveLine");
-    private final BooleanProperty skipRuleProcessing = new SimpleBooleanProperty(FALSE, "checked");
+    private final BooleanProperty skipRuleProcessing = new SimpleBooleanProperty(FALSE, "skipRuleProcessing");
 
     public TableModel() {
         this(new ConjugationData());
