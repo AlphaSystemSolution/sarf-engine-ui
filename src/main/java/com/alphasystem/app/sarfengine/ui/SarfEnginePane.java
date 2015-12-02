@@ -231,8 +231,12 @@ public class SarfEnginePane extends BorderPane {
                 currentItems.addAll(items);
             }
             try {
-                templateReader.saveFile(tabInfo.getSarfxFile(), getConjugationTemplate(currentItems));
+                File sarfxFile = tabInfo.getSarfxFile();
+                templateReader.saveFile(sarfxFile, getConjugationTemplate(currentItems));
                 // TODO: save a s DOCX
+
+                Tab currentTab = getCurrentTab();
+                currentTab.setText(TemplateReader.getFileNameNoExtension(sarfxFile));
             } catch (ApplicationException e) {
                 e.printStackTrace();
                 Alert alert = new Alert(ERROR);
