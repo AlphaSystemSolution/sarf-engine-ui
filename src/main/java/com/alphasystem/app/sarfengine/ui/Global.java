@@ -74,7 +74,16 @@ public final class Global {
     }
 
     public static Text createSpaceLabel() {
-        return new Text(" ");
+        return createSpaceLabel(1);
+    }
+
+    public static Text createSpaceLabel(int numOfSpace) {
+        numOfSpace = numOfSpace <= 0 ? 1 : numOfSpace;
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < numOfSpace; i++) {
+            builder.append(" ");
+        }
+        return new Text(builder.toString());
     }
 
     public static double roundTo100(double srcValue) {

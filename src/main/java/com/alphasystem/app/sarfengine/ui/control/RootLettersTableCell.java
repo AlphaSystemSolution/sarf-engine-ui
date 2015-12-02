@@ -77,9 +77,12 @@ public class RootLettersTableCell extends TableCell<TableModel, RootLetters> {
         if (item != null && !empty) {
             TextFlow textFlow = new TextFlow();
 
-            textFlow.getChildren().addAll(createLabel(item.getFirstRadical()), createSpaceLabel(),
-                    createLabel(item.getSecondRadical()), createSpaceLabel(), createLabel(item.getThirdRadical()),
-                    createSpaceLabel(), createLabel(item.getFourthRadical()));
+            ArabicLetterType fourthRadical = item.getFourthRadical();
+            textFlow.getChildren().addAll(createLabel(item.getFirstRadical()), createSpaceLabel(5),
+                    createLabel(item.getSecondRadical()), createSpaceLabel(5), createLabel(item.getThirdRadical()));
+            if (fourthRadical != null) {
+                textFlow.getChildren().addAll(createSpaceLabel(5), createLabel(fourthRadical));
+            }
             label = new Group(textFlow);
         }
         setGraphic(label);
