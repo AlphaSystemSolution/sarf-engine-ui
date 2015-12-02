@@ -13,6 +13,7 @@ import javafx.scene.text.TextFlow;
 import javafx.stage.Popup;
 
 import static com.alphasystem.app.sarfengine.ui.Global.*;
+import static javafx.geometry.NodeOrientation.RIGHT_TO_LEFT;
 import static javafx.geometry.Pos.CENTER;
 import static javafx.scene.control.ContentDisplay.GRAPHIC_ONLY;
 
@@ -27,6 +28,7 @@ public abstract class ListTableCell<T extends ArabicSupport> extends TableCell<T
     public ListTableCell(@SuppressWarnings({"unused"}) TableColumn<TableModel, ObservableList<T>> column,
                          ArabicSupportGroupPane<T> groupPane) {
         setContentDisplay(GRAPHIC_ONLY);
+        setNodeOrientation(RIGHT_TO_LEFT);
 
         this.groupPane = groupPane;
         popup = new Popup();

@@ -15,6 +15,7 @@ import javafx.stage.Popup;
 
 import static com.alphasystem.app.sarfengine.ui.Global.createLabel;
 import static com.alphasystem.app.sarfengine.ui.Global.createSpaceLabel;
+import static javafx.geometry.NodeOrientation.RIGHT_TO_LEFT;
 import static javafx.geometry.Pos.CENTER;
 import static javafx.scene.control.ContentDisplay.GRAPHIC_ONLY;
 
@@ -28,6 +29,7 @@ public class RootLettersTableCell extends TableCell<TableModel, RootLetters> {
 
     public RootLettersTableCell(@SuppressWarnings({"unused"}) TableColumn<TableModel, RootLetters> column) {
         setContentDisplay(GRAPHIC_ONLY);
+        setNodeOrientation(RIGHT_TO_LEFT);
 
         popup = new Popup();
         keyBoard = new RootLettersPickerKeyBoard();

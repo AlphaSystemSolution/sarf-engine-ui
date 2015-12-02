@@ -380,6 +380,7 @@ public class SarfEnginePane extends BorderPane {
 
             {
                 setContentDisplay(GRAPHIC_ONLY);
+                setNodeOrientation(RIGHT_TO_LEFT);
                 comboBox = createComboBox(NamedTemplate.values());
                 arabicText = new Text();
                 arabicText.setFont(ARABIC_FONT_24);
@@ -416,7 +417,7 @@ public class SarfEnginePane extends BorderPane {
                 if (item != null && !empty) {
                     labelText.setText(format("(%s) ", item.getCode()));
                     arabicText.setText(item.getLabel().toUnicode());
-                    textFlow.getChildren().addAll(labelText, arabicText);
+                    textFlow.getChildren().addAll(arabicText, createSpaceLabel(), labelText);
                     graphic = new Group(textFlow);
                 }
                 setGraphic(graphic);
