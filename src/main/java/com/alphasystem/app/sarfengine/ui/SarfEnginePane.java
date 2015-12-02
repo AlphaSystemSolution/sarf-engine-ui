@@ -26,8 +26,7 @@ import java.io.File;
 import java.util.List;
 import java.util.Optional;
 
-import static com.alphasystem.app.sarfengine.ui.Global.ARABIC_FONT_24;
-import static com.alphasystem.app.sarfengine.ui.Global.roundTo100;
+import static com.alphasystem.app.sarfengine.ui.Global.*;
 import static com.alphasystem.arabic.ui.ComboBoxHelper.createComboBox;
 import static com.alphasystem.util.AppUtil.getResourceAsStream;
 import static java.lang.Math.max;
@@ -111,16 +110,20 @@ public class SarfEnginePane extends BorderPane {
         Tab tab = new Tab(createNewTabTitle(), createTable(null));
         tab.setUserData(new TabInfo());
         tab.setOnCloseRequest(event -> {
-            Alert alert = new Alert(CONFIRMATION);
-            alert.setContentText("Do you  want to save data before closing?");
-            Optional<ButtonType> result = alert.showAndWait();
-            ButtonType buttonType = result.get();
-            ButtonBar.ButtonData buttonData = buttonType.getButtonData();
-            if (buttonData.isDefaultButton()) {
-                // TODO:
-            } else {
-                event.consume();
+            TabInfo tabInfo = getTabUserData();
+            if (tabInfo.getDirty()) {
+                Alert alert = new Alert(CONFIRMATION);
+                alert.setContentText("Do you  want to save data before closing?");
+                Optional<ButtonType> result = alert.showAndWait();
+                ButtonType buttonType = result.get();
+                ButtonBar.ButtonData buttonData = buttonType.getButtonData();
+                if (buttonData.isDefaultButton()) {
+                    saveAction(SaveMode.SAVE);
+                } else {
+                    event.consume();
+                }
             }
+
         });
         return tab;
     }
@@ -160,9 +163,7 @@ public class SarfEnginePane extends BorderPane {
         button = new Button();
         button.setTooltip(new Tooltip("Create New File"));
         button.setGraphic(new ImageView(new Image(getResourceAsStream("images.new-file-icon.png"))));
-        button.setOnAction(event -> {
-            tabPane.getTabs().add(createTab());
-        });
+        button.setOnAction(event -> tabPane.getTabs().add(createTab()));
         toolBar.getItems().add(button);
 
         button = new Button();
@@ -209,42 +210,41 @@ public class SarfEnginePane extends BorderPane {
     private void saveAction(SaveMode saveMode) {
         final TabInfo tabInfo = getTabUserData();
         if (tabInfo != null) {
-            boolean doSave = showDialogIfApplicable(saveMode, tabInfo);
-            if (doSave) {
-                runLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        TableView<TableModel> tableView = getCurrentTable();
-                        ObservableList<TableModel> items = tableView.getItems();
-                        final ObservableList<TableModel> currentItems = observableArrayList();
-                        if (SaveMode.SAVE_SELECTED.equals(saveMode)) {
-                            items.forEach(tableModel -> {
-                                if (tableModel.getChecked()) {
-                                    currentItems.add(tableModel);
-                                }
-                            });
-                        } else {
-                            currentItems.addAll(items);
-                        }
-                        try {
-                            templateReader.saveFile(tabInfo.getSarfxFile(), getConjugationTemplate(currentItems));
-                        } catch (ApplicationException e) {
-                            e.printStackTrace();
-                            Alert alert = new Alert(ERROR);
-                            alert.setContentText(e.getMessage());
-                            alert.showAndWait();
-                        }
-                    } // end of method "run"
-                }); // end of "runLater"
+            if (showDialogIfApplicable(saveMode, tabInfo)) {
+                runLater(saveData(saveMode, tabInfo));
             } // end of if "doSave"
         } // end of if "tabInfo != null"
     }
 
+    private Runnable saveData(final SaveMode saveMode, final TabInfo tabInfo) {
+        return () -> {
+            TableView<TableModel> tableView = getCurrentTable();
+            ObservableList<TableModel> items = tableView.getItems();
+            final ObservableList<TableModel> currentItems = observableArrayList();
+            if (SaveMode.SAVE_SELECTED.equals(saveMode)) {
+                items.forEach(tableModel -> {
+                    if (tableModel.getChecked()) {
+                        currentItems.add(tableModel);
+                    }
+                });
+            } else {
+                currentItems.addAll(items);
+            }
+            try {
+                templateReader.saveFile(tabInfo.getSarfxFile(), getConjugationTemplate(currentItems));
+                // TODO: save a s DOCX
+            } catch (ApplicationException e) {
+                e.printStackTrace();
+                Alert alert = new Alert(ERROR);
+                alert.setContentText(e.getMessage());
+                alert.showAndWait();
+            }
+        };
+    }
+
     private ConjugationTemplate getConjugationTemplate(ObservableList<TableModel> items) {
         ConjugationTemplate template = new ConjugationTemplate();
-        items.forEach(tableModel -> {
-            template.getData().add(tableModel.getConjugationData());
-        });
+        items.forEach(tableModel -> template.getData().add(tableModel.getConjugationData()));
         // TODO: add ChartConfiguration
         return template;
     }
@@ -288,6 +288,7 @@ public class SarfEnginePane extends BorderPane {
         rootLettersColumn.setEditable(true);
         rootLettersColumn.setCellValueFactory(new PropertyValueFactory<>("rootLetters"));
         rootLettersColumn.setCellFactory(RootLettersTableCell::new);
+        rootLettersColumn.setOnEditCommit(event -> makeDirty(true));
 
         TableColumn<TableModel, NamedTemplate> templateColumn = new TableColumn<>();
         templateColumn.setText("Form");
@@ -309,7 +310,7 @@ public class SarfEnginePane extends BorderPane {
                 arabicText.setNodeOrientation(RIGHT_TO_LEFT);
                 labelText = new Text();
                 labelText.setTextAlignment(CENTER);
-                labelText.setFont(Global.ENGLISH_FONT);
+                labelText.setFont(ENGLISH_FONT);
 
                 comboBox.getSelectionModel().selectedItemProperty().addListener((o, ov, nv) -> {
                     commitEdit(nv);
@@ -352,6 +353,7 @@ public class SarfEnginePane extends BorderPane {
         verbalNounsColumn.setCellValueFactory(new PropertyValueFactory<>("verbalNouns"));
         verbalNounsColumn.setCellFactory(VerbalNounTableCell::new);
         verbalNounsColumn.setOnEditCommit(event -> {
+            makeDirty(true);
             TableView<TableModel> table = event.getTableView();
             TableModel selectedItem = table.getSelectionModel().getSelectedItem();
             selectedItem.getVerbalNouns().clear();
@@ -365,6 +367,7 @@ public class SarfEnginePane extends BorderPane {
         adverbsColumn.setCellValueFactory(new PropertyValueFactory<>("adverbs"));
         adverbsColumn.setCellFactory(AdverbTableCell::new);
         adverbsColumn.setOnEditCommit(event -> {
+            makeDirty(true);
             TableView<TableModel> table = event.getTableView();
             TableModel selectedItem = table.getSelectionModel().getSelectedItem();
             selectedItem.getAdverbs().clear();
@@ -373,6 +376,7 @@ public class SarfEnginePane extends BorderPane {
 
         //TODO: figure out how to refresh Verbal Noun column with new values
         templateColumn.setOnEditCommit(event -> {
+            makeDirty(true);
             NamedTemplate newValue = event.getNewValue();
             TableView<TableModel> table = event.getTableView();
             TableModel selectedItem = table.getSelectionModel().getSelectedItem();
@@ -405,6 +409,7 @@ public class SarfEnginePane extends BorderPane {
         removePassiveLineColumn.setEditable(true);
         removePassiveLineColumn.setCellValueFactory(new PropertyValueFactory<>("removePassiveLine"));
         removePassiveLineColumn.setCellFactory(forTableColumn(removePassiveLineColumn));
+        removePassiveLineColumn.setOnEditCommit(event -> makeDirty(true));
 
         TableColumn<TableModel, Boolean> skipRuleProcessingColumn = new TableColumn<>();
         skipRuleProcessingColumn.setText("Skip\nRule\nProcessing");
@@ -412,13 +417,14 @@ public class SarfEnginePane extends BorderPane {
         skipRuleProcessingColumn.setEditable(true);
         skipRuleProcessingColumn.setCellValueFactory(new PropertyValueFactory<>("skipRuleProcessing"));
         skipRuleProcessingColumn.setCellFactory(forTableColumn(skipRuleProcessingColumn));
+        skipRuleProcessingColumn.setOnEditCommit(event -> makeDirty(true));
 
         tableView.getColumns().addAll(checkedColumn, rootLettersColumn, templateColumn, verbalNounsColumn,
                 adverbsColumn, removePassiveLineColumn, skipRuleProcessingColumn);
     }
 
     private enum SaveMode {
-        SAVE, SAVE_AS, SAVE_SELECTED;
+        SAVE, SAVE_AS, SAVE_SELECTED
     }
 
 }
