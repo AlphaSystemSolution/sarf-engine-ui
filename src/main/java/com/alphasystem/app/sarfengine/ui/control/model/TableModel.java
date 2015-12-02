@@ -32,16 +32,12 @@ public final class TableModel {
     }
 
     public TableModel(ConjugationData data) {
-        if (data == null) {
-            data = new ConjugationData();
-        }
-        this.conjugationData = data;
+        this.conjugationData = (data == null) ? new ConjugationData() : data;
         setRootLetters(data.getRootLetters());
         setTemplate(data.getTemplate());
         setTranslation(data.getTranslation());
-        VernalNounAndAdverbContainer container = data.getContainer();
-        getVerbalNouns().addAll(container.getVerbalNouns());
-        getAdverbs().addAll(container.getAdverbs());
+        getVerbalNouns().addAll(data.getVerbalNouns());
+        getAdverbs().addAll(data.getAdverbs());
         ConjugationConfiguration configuration = data.getConfiguration();
         setRemovePassiveLine(configuration.isRemovePassiveLine());
         setSkipRuleProcessing(configuration.isSkipRuleProcessing());
@@ -59,14 +55,14 @@ public final class TableModel {
         });
         verbalNouns.addListener((ListChangeListener<VerbalNoun>) c -> {
             while (c.next()) {
-                List<VerbalNoun> verbalNouns = conjugationData.getContainer().getVerbalNouns();
+                List<VerbalNoun> verbalNouns = conjugationData.getVerbalNouns();
                 verbalNouns.clear();
                 verbalNouns.addAll(c.getAddedSubList());
             }
         });
         adverbs.addListener((ListChangeListener<NounOfPlaceAndTime>) c -> {
             while (c.next()) {
-                List<NounOfPlaceAndTime> adverbs = conjugationData.getContainer().getAdverbs();
+                List<NounOfPlaceAndTime> adverbs = conjugationData.getAdverbs();
                 adverbs.clear();
                 adverbs.addAll(c.getAddedSubList());
             }
