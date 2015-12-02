@@ -6,15 +6,18 @@ import com.alphasystem.sarfengine.xml.model.NounOfPlaceAndTime;
 import com.alphasystem.sarfengine.xml.model.VerbalNoun;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.stage.FileChooser;
 
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.alphasystem.app.sarfengine.util.TemplateReader.SARF_FILE_EXTENSION_ALL;
 import static com.alphasystem.arabic.model.ArabicLetterType.WAW;
 import static com.alphasystem.arabic.model.NamedTemplate.*;
 import static com.alphasystem.sarfengine.xml.model.NounOfPlaceAndTime.*;
 import static com.alphasystem.sarfengine.xml.model.VerbalNoun.*;
+import static com.alphasystem.util.AppUtil.USER_HOME_DIR;
 import static java.util.Arrays.asList;
 import static javafx.scene.text.FontPosture.REGULAR;
 import static javafx.scene.text.FontWeight.BLACK;
@@ -32,7 +35,12 @@ public final class Global {
     public static final Map<NamedTemplate, List<VerbalNoun>> VERBAL_NOUN_TEMPLATE_MAPPING = new LinkedHashMap<>();
     public static final Map<NamedTemplate, List<NounOfPlaceAndTime>> ADVERB_TEMPLATE_MAPPING = new LinkedHashMap<>();
 
+    public static final FileChooser FILE_CHOOSER = new FileChooser();
+
     static {
+        FILE_CHOOSER.setInitialDirectory(USER_HOME_DIR);
+        FILE_CHOOSER.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Sarfx Files", SARF_FILE_EXTENSION_ALL));
+
         VERBAL_NOUN_TEMPLATE_MAPPING.put(FORM_II_TEMPLATE, asList(VERBAL_NOUN_FORM_II));
         VERBAL_NOUN_TEMPLATE_MAPPING.put(FORM_III_TEMPLATE, asList(VERBAL_NOUN_FORM_III_V1, VERBAL_NOUN_FORM_III_V2));
         VERBAL_NOUN_TEMPLATE_MAPPING.put(FORM_IV_TEMPLATE, asList(VERBAL_NOUN_FORM_IV));

@@ -12,12 +12,12 @@ import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
-import javafx.stage.FileChooser;
 
 import java.io.File;
 
-import static com.alphasystem.app.sarfengine.util.TemplateReader.*;
-import static com.alphasystem.util.AppUtil.USER_HOME_DIR;
+import static com.alphasystem.app.sarfengine.ui.Global.FILE_CHOOSER;
+import static com.alphasystem.app.sarfengine.util.TemplateReader.getDocxFile;
+import static com.alphasystem.app.sarfengine.util.TemplateReader.getSarfxFile;
 import static javafx.beans.binding.Bindings.when;
 import static javafx.geometry.Pos.CENTER;
 import static javafx.scene.control.ButtonType.CANCEL;
@@ -33,15 +33,12 @@ public class FileSelectionDialog extends Dialog<TabInfo> {
     private static final int DEFAULT_VALUE = 10;
     private final ObjectProperty<TabInfo> tabInfo = new SimpleObjectProperty<>();
     private final StringProperty sarfxFile = new SimpleStringProperty();
-    private final FileChooser fileChooser = new FileChooser();
 
     public FileSelectionDialog(final TabInfo src) {
         super();
 
         setTitle("Select Files");
         initModality(WINDOW_MODAL);
-        fileChooser.setInitialDirectory(USER_HOME_DIR);
-        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Sarfx Files", SARF_FILE_EXTENSION_ALL));
 
         tabInfoProperty().addListener((o, ov, nv) -> {
             initDialogPane(nv);
@@ -76,7 +73,7 @@ public class FileSelectionDialog extends Dialog<TabInfo> {
         label.setLabelFor(sarfxField);
         Button button = new Button(" ... ");
         button.setOnAction(event -> {
-            File file = fileChooser.showSaveDialog(getOwner());
+            File file = FILE_CHOOSER.showSaveDialog(getOwner());
             if (file != null) {
                 File sarfxFile = getSarfxFile(file);
                 sarfxField.setText(sarfxFile.getAbsolutePath());

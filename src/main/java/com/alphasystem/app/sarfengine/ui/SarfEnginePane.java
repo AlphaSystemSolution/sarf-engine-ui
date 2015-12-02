@@ -11,6 +11,7 @@ import com.alphasystem.app.sarfengine.util.TemplateReader;
 import com.alphasystem.arabic.model.NamedTemplate;
 import com.alphasystem.sarfengine.xml.model.*;
 import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.*;
@@ -18,7 +19,12 @@ import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.CornerRadii;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
@@ -41,8 +47,11 @@ import static javafx.scene.control.ScrollPane.ScrollBarPolicy.AS_NEEDED;
 import static javafx.scene.control.SelectionMode.SINGLE;
 import static javafx.scene.control.TabPane.TabClosingPolicy.SELECTED_TAB;
 import static javafx.scene.control.cell.CheckBoxTableCell.forTableColumn;
+import static javafx.scene.input.KeyCode.S;
+import static javafx.scene.input.KeyCombination.META_DOWN;
 import static javafx.scene.text.TextAlignment.CENTER;
 import static javafx.stage.Screen.getPrimary;
+import static org.apache.commons.io.FilenameUtils.getBaseName;
 
 /**
  * @author sali
@@ -61,16 +70,17 @@ public class SarfEnginePane extends BorderPane {
     public SarfEnginePane() {
         tabPane = new TabPane();
         tabPane.setTabClosingPolicy(SELECTED_TAB);
-        tabPane.getTabs().add(createTab());
+        newAction();
 
         dialog = new FileSelectionDialog(new TabInfo());
 
         setCenter(tabPane);
         setTop(createToolBar());
+        setBackground(new Background(new BackgroundFill(Color.AQUA, CornerRadii.EMPTY, Insets.EMPTY)));
     }
 
-    private static String createNewTabTitle() {
-        return format("Untitled %s", counter++);
+    private static String getTabTitle(File file) {
+        return (file == null) ? format("Untitled %s", counter++) : getBaseName(file.getAbsolutePath());
     }
 
     private static double calculateTableHeight(int numOfRows) {
@@ -106,8 +116,8 @@ public class SarfEnginePane extends BorderPane {
         }
     }
 
-    private Tab createTab() {
-        Tab tab = new Tab(createNewTabTitle(), createTable(null));
+    private Tab createTab(File file, ConjugationTemplate template) {
+        Tab tab = new Tab(getTabTitle(file), createTable(template));
         tab.setUserData(new TabInfo());
         tab.setOnCloseRequest(event -> {
             TabInfo tabInfo = getTabUserData();
@@ -163,21 +173,20 @@ public class SarfEnginePane extends BorderPane {
         button = new Button();
         button.setTooltip(new Tooltip("Create New File"));
         button.setGraphic(new ImageView(new Image(getResourceAsStream("images.new-file-icon.png"))));
-        button.setOnAction(event -> tabPane.getTabs().add(createTab()));
+        button.setOnAction(event -> newAction());
         toolBar.getItems().add(button);
 
         button = new Button();
         button.setTooltip(new Tooltip("Open File"));
         button.setGraphic(new ImageView(new Image(getResourceAsStream("images.open-file-icon.png"))));
-        button.setOnAction(event -> {
-
-        });
+        button.setOnAction(event -> openAction());
         toolBar.getItems().add(button);
 
         SplitMenuButton splitMenuButton = new SplitMenuButton();
         splitMenuButton.setText("Save");
         splitMenuButton.setGraphic(new ImageView(new Image(getResourceAsStream("images.save-as-docx-icon.png"))));
         MenuItem menuItem = new MenuItem("Save");
+        menuItem.setAccelerator(new KeyCodeCombination(S, META_DOWN));
         menuItem.setOnAction(event -> saveAction(SaveMode.SAVE));
         splitMenuButton.getItems().add(menuItem);
         menuItem = new MenuItem("Save As ...");
@@ -196,6 +205,62 @@ public class SarfEnginePane extends BorderPane {
         toolBar.getItems().add(button);
 
         return toolBar;
+    }
+
+    /**
+     * New action.
+     *
+     * @see SarfEnginePane#openAction(boolean)
+     */
+    private void newAction() {
+        openAction(false);
+    }
+
+    /**
+     * Open action.
+     *
+     * @see SarfEnginePane#openAction(boolean)
+     */
+    private void openAction() {
+        openAction(true);
+    }
+
+    /**
+     * Performs either <strong>OPEN</strong> or <strong>NEW</strong> action. If the <code>showDialog</code> parameter
+     * is true then file chooser dialog will get displayed and this method will behave like typical
+     * <strong>OPEN</strong> action, if the given parameter is passed then this method will behave like typical
+     * <strong>NEW</strong> action.
+     * <div>
+     * In case of "open" action in following case file not be opened:
+     * <ul>
+     * <li>If user canceled the file dialog</li>
+     * <li>If errors occur reading file</li>
+     * </ul>
+     * </div>
+     *
+     * @param showDialog true for "open" action, false for "new" action
+     */
+    private void openAction(boolean showDialog) {
+        File file = null;
+        ConjugationTemplate template = null;
+        if (showDialog) {
+            file = FILE_CHOOSER.showOpenDialog(getScene().getWindow());
+            if (file == null) {
+                // use might have cancel the dialog
+                return;
+            } else {
+                try {
+                    template = templateReader.readFile(file);
+                } catch (ApplicationException e) {
+                    e.printStackTrace();
+                    showError(e);
+                    return;
+                }
+            }
+        }
+        Tab tab = createTab(file, template);
+        tabPane.getTabs().add(tab);
+        tabPane.getSelectionModel().select(tab);
     }
 
     private void addNewRowAction() {
@@ -237,13 +302,21 @@ public class SarfEnginePane extends BorderPane {
 
                 Tab currentTab = getCurrentTab();
                 currentTab.setText(TemplateReader.getFileNameNoExtension(sarfxFile));
+                if (SaveMode.SAVE_SELECTED.equals(saveMode)) {
+                    tableView.getItems().clear();
+                    tableView.getItems().addAll(currentItems);
+                }
             } catch (ApplicationException e) {
                 e.printStackTrace();
-                Alert alert = new Alert(ERROR);
-                alert.setContentText(e.getMessage());
-                alert.showAndWait();
+                showError(e);
             }
         };
+    }
+
+    private void showError(Exception ex) {
+        Alert alert = new Alert(ERROR);
+        alert.setContentText(ex.getMessage());
+        alert.showAndWait();
     }
 
     private ConjugationTemplate getConjugationTemplate(ObservableList<TableModel> items) {
