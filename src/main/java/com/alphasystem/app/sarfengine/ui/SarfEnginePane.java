@@ -1,8 +1,10 @@
 package com.alphasystem.app.sarfengine.ui;
 
 import com.alphasystem.app.sarfengine.ui.control.AdverbTableCell;
+import com.alphasystem.app.sarfengine.ui.control.FileSelectionDialog;
 import com.alphasystem.app.sarfengine.ui.control.RootLettersTableCell;
 import com.alphasystem.app.sarfengine.ui.control.VerbalNounTableCell;
+import com.alphasystem.app.sarfengine.ui.control.model.TabInfo;
 import com.alphasystem.app.sarfengine.ui.control.model.TableModel;
 import com.alphasystem.arabic.model.NamedTemplate;
 import com.alphasystem.sarfengine.xml.model.*;
@@ -18,6 +20,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
+import java.io.File;
 import java.util.List;
 import java.util.Optional;
 
@@ -46,13 +49,17 @@ public class SarfEnginePane extends BorderPane {
     private static final double DEFAULT_MIN_HEIGHT = 500.0;
     private static final double ROW_SIZE = 40.0;
     private static int counter = 1;
+
     private final TabPane tabPane;
+    private final FileSelectionDialog dialog;
 
     @SuppressWarnings({"unchecked"})
     public SarfEnginePane() {
         tabPane = new TabPane();
         tabPane.setTabClosingPolicy(SELECTED_TAB);
         tabPane.getTabs().add(createTab());
+
+        dialog = new FileSelectionDialog(new TabInfo());
 
         setCenter(tabPane);
         setTop(createToolBar());
@@ -68,8 +75,25 @@ public class SarfEnginePane extends BorderPane {
         return max(height, DEFAULT_MIN_HEIGHT);
     }
 
+    private Tab getCurrentTab() {
+        return tabPane.getSelectionModel().getSelectedItem();
+    }
+
+    private TabInfo getTabUserData() {
+        Tab currentTab = getCurrentTab();
+        return (currentTab == null) ? null : ((TabInfo) currentTab.getUserData());
+    }
+
+    private void makeDirty(boolean dirty) {
+        TabInfo tabInfo = getTabUserData();
+        if (tabInfo != null) {
+            tabInfo.setDirty(dirty);
+        }
+    }
+
     private Tab createTab() {
         Tab tab = new Tab(createNewTabTitle(), createTable(null));
+        tab.setUserData(new TabInfo());
         tab.setOnCloseRequest(event -> {
             Alert alert = new Alert(CONFIRMATION);
             alert.setContentText("Do you  want to save data before closing?");
@@ -77,9 +101,8 @@ public class SarfEnginePane extends BorderPane {
             ButtonType buttonType = result.get();
             ButtonBar.ButtonData buttonData = buttonType.getButtonData();
             if (buttonData.isDefaultButton()) {
-                System.out.println("saving ...");
+                // TODO:
             } else {
-                System.out.println("HERE");
                 event.consume();
             }
         });
@@ -134,6 +157,20 @@ public class SarfEnginePane extends BorderPane {
         });
         toolBar.getItems().add(button);
 
+        SplitMenuButton splitMenuButton = new SplitMenuButton();
+        splitMenuButton.setText("Save");
+        splitMenuButton.setGraphic(new ImageView(new Image(getResourceAsStream("images.save-as-docx-icon.png"))));
+        MenuItem menuItem = new MenuItem("Save");
+        menuItem.setOnAction(event -> saveAction(SaveMode.SAVE));
+        splitMenuButton.getItems().add(menuItem);
+        menuItem = new MenuItem("Save As ...");
+        menuItem.setOnAction(event -> saveAction(SaveMode.SAVE_AS));
+        splitMenuButton.getItems().add(menuItem);
+        menuItem = new MenuItem("Save Selected Data ...");
+        menuItem.setOnAction(event -> saveAction(SaveMode.SAVE_SELECTED));
+        splitMenuButton.getItems().add(menuItem);
+        toolBar.getItems().add(splitMenuButton);
+
         toolBar.getItems().add(new Separator());
         button = new Button();
         button.setTooltip(new Tooltip("Add new Row"));
@@ -146,13 +183,32 @@ public class SarfEnginePane extends BorderPane {
 
     @SuppressWarnings({"unchecked"})
     private void addNewRowAction() {
-        Tab selectedItem = tabPane.getSelectionModel().getSelectedItem();
+        Tab selectedItem = getCurrentTab();
         if (selectedItem != null) {
             ScrollPane scrollPane = (ScrollPane) selectedItem.getContent();
             TableView<TableModel> tableView = (TableView<TableModel>) scrollPane.getContent();
             ObservableList<TableModel> items = tableView.getItems();
             items.add(new TableModel());
             tableView.setPrefHeight(calculateTableHeight(items.size()));
+        }
+    }
+
+    private void saveAction(SaveMode saveMode) {
+        TabInfo tabInfo = getTabUserData();
+        if (tabInfo != null) {
+            File sarfxFile = tabInfo.getSarfxFile();
+            boolean showDialog = sarfxFile != null && (saveMode.equals(SaveMode.SAVE_AS) ||
+                    saveMode.equals(SaveMode.SAVE_SELECTED));
+            if (showDialog) {
+                dialog.setTabInfo(tabInfo);
+                dialog.initOwner(getScene().getWindow());
+                Optional<TabInfo> result = dialog.showAndWait();
+                result.ifPresent(ti -> {
+                    tabInfo.setSarfxFile(ti.getSarfxFile());
+                    tabInfo.setDocxFile(ti.getDocxFile());
+                    tabInfo.setDirty(false);
+                });
+            }
         }
     }
 
@@ -285,6 +341,10 @@ public class SarfEnginePane extends BorderPane {
 
         tableView.getColumns().addAll(checkedColumn, rootLettersColumn, templateColumn, verbalNounsColumn,
                 adverbsColumn, removePassiveLineColumn, skipRuleProcessingColumn);
+    }
+
+    private enum SaveMode {
+        SAVE, SAVE_AS, SAVE_SELECTED;
     }
 
 }
