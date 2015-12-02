@@ -39,7 +39,7 @@ public class FileSelectionDialog extends Dialog<TabInfo> {
 
         setTitle("Select Files");
         initModality(WINDOW_MODAL);
-        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter(SARF_SUFFIX, "." + SARF_SUFFIX));
+        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Sarfx Files", SARF_FILE_EXTENSION_ALL));
 
         tabInfoProperty().addListener((o, ov, nv) -> {
             initDialogPane(nv);
