@@ -17,6 +17,7 @@ import javafx.stage.FileChooser;
 import java.io.File;
 
 import static com.alphasystem.app.sarfengine.util.TemplateReader.*;
+import static com.alphasystem.util.AppUtil.USER_HOME_DIR;
 import static javafx.beans.binding.Bindings.when;
 import static javafx.geometry.Pos.CENTER;
 import static javafx.scene.control.ButtonType.CANCEL;
@@ -39,6 +40,7 @@ public class FileSelectionDialog extends Dialog<TabInfo> {
 
         setTitle("Select Files");
         initModality(WINDOW_MODAL);
+        fileChooser.setInitialDirectory(USER_HOME_DIR);
         fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Sarfx Files", SARF_FILE_EXTENSION_ALL));
 
         tabInfoProperty().addListener((o, ov, nv) -> {
