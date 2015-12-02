@@ -1,11 +1,13 @@
 package com.alphasystem.app.sarfengine.ui;
 
+import com.alphasystem.ApplicationException;
 import com.alphasystem.app.sarfengine.ui.control.AdverbTableCell;
 import com.alphasystem.app.sarfengine.ui.control.FileSelectionDialog;
 import com.alphasystem.app.sarfengine.ui.control.RootLettersTableCell;
 import com.alphasystem.app.sarfengine.ui.control.VerbalNounTableCell;
 import com.alphasystem.app.sarfengine.ui.control.model.TabInfo;
 import com.alphasystem.app.sarfengine.ui.control.model.TableModel;
+import com.alphasystem.app.sarfengine.util.TemplateReader;
 import com.alphasystem.arabic.model.NamedTemplate;
 import com.alphasystem.sarfengine.xml.model.*;
 import javafx.collections.ObservableList;
@@ -30,9 +32,11 @@ import static com.alphasystem.arabic.ui.ComboBoxHelper.createComboBox;
 import static com.alphasystem.util.AppUtil.getResourceAsStream;
 import static java.lang.Math.max;
 import static java.lang.String.format;
+import static javafx.application.Platform.runLater;
 import static javafx.collections.FXCollections.observableArrayList;
 import static javafx.geometry.NodeOrientation.RIGHT_TO_LEFT;
 import static javafx.scene.control.Alert.AlertType.CONFIRMATION;
+import static javafx.scene.control.Alert.AlertType.ERROR;
 import static javafx.scene.control.ContentDisplay.GRAPHIC_ONLY;
 import static javafx.scene.control.ScrollPane.ScrollBarPolicy.AS_NEEDED;
 import static javafx.scene.control.SelectionMode.SINGLE;
@@ -52,6 +56,7 @@ public class SarfEnginePane extends BorderPane {
 
     private final TabPane tabPane;
     private final FileSelectionDialog dialog;
+    private final TemplateReader templateReader = TemplateReader.getInstance();
 
     @SuppressWarnings({"unchecked"})
     public SarfEnginePane() {
@@ -82,6 +87,17 @@ public class SarfEnginePane extends BorderPane {
     private TabInfo getTabUserData() {
         Tab currentTab = getCurrentTab();
         return (currentTab == null) ? null : ((TabInfo) currentTab.getUserData());
+    }
+
+    @SuppressWarnings({"unchecked"})
+    private TableView<TableModel> getCurrentTable() {
+        TableView<TableModel> tableView = null;
+        Tab currentTab = getCurrentTab();
+        if (currentTab != null) {
+            ScrollPane scrollPane = (ScrollPane) currentTab.getContent();
+            tableView = (TableView<TableModel>) scrollPane.getContent();
+        }
+        return tableView;
     }
 
     private void makeDirty(boolean dirty) {
@@ -181,12 +197,9 @@ public class SarfEnginePane extends BorderPane {
         return toolBar;
     }
 
-    @SuppressWarnings({"unchecked"})
     private void addNewRowAction() {
-        Tab selectedItem = getCurrentTab();
-        if (selectedItem != null) {
-            ScrollPane scrollPane = (ScrollPane) selectedItem.getContent();
-            TableView<TableModel> tableView = (TableView<TableModel>) scrollPane.getContent();
+        TableView<TableModel> tableView = getCurrentTable();
+        if (tableView != null) {
             ObservableList<TableModel> items = tableView.getItems();
             items.add(new TableModel());
             tableView.setPrefHeight(calculateTableHeight(items.size()));
@@ -194,22 +207,65 @@ public class SarfEnginePane extends BorderPane {
     }
 
     private void saveAction(SaveMode saveMode) {
-        TabInfo tabInfo = getTabUserData();
+        final TabInfo tabInfo = getTabUserData();
         if (tabInfo != null) {
-            File sarfxFile = tabInfo.getSarfxFile();
-            boolean showDialog = sarfxFile != null && (saveMode.equals(SaveMode.SAVE_AS) ||
-                    saveMode.equals(SaveMode.SAVE_SELECTED));
-            if (showDialog) {
-                dialog.setTabInfo(tabInfo);
+            boolean doSave = showDialogIfApplicable(saveMode, tabInfo);
+            if (doSave) {
+                runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        TableView<TableModel> tableView = getCurrentTable();
+                        ObservableList<TableModel> items = tableView.getItems();
+                        final ObservableList<TableModel> currentItems = observableArrayList();
+                        if (SaveMode.SAVE_SELECTED.equals(saveMode)) {
+                            items.forEach(tableModel -> {
+                                if (tableModel.getChecked()) {
+                                    currentItems.add(tableModel);
+                                }
+                            });
+                        } else {
+                            currentItems.addAll(items);
+                        }
+                        try {
+                            templateReader.saveFile(tabInfo.getSarfxFile(), getConjugationTemplate(currentItems));
+                        } catch (ApplicationException e) {
+                            e.printStackTrace();
+                            Alert alert = new Alert(ERROR);
+                            alert.setContentText(e.getMessage());
+                            alert.showAndWait();
+                        }
+                    } // end of method "run"
+                }); // end of "runLater"
+            } // end of if "doSave"
+        } // end of if "tabInfo != null"
+    }
+
+    private ConjugationTemplate getConjugationTemplate(ObservableList<TableModel> items) {
+        ConjugationTemplate template = new ConjugationTemplate();
+        items.forEach(tableModel -> {
+            template.getData().add(tableModel.getConjugationData());
+        });
+        // TODO: add ChartConfiguration
+        return template;
+    }
+
+    private boolean showDialogIfApplicable(SaveMode saveMode, TabInfo tabInfo) {
+        File sarfxFile = tabInfo.getSarfxFile();
+        boolean showDialog = sarfxFile == null || SaveMode.SAVE_AS.equals(saveMode) ||
+                SaveMode.SAVE_SELECTED.equals(saveMode);
+        if (showDialog) {
+            dialog.setTabInfo(tabInfo);
+            if (dialog.getOwner() == null) {
                 dialog.initOwner(getScene().getWindow());
-                Optional<TabInfo> result = dialog.showAndWait();
-                result.ifPresent(ti -> {
-                    tabInfo.setSarfxFile(ti.getSarfxFile());
-                    tabInfo.setDocxFile(ti.getDocxFile());
-                    tabInfo.setDirty(false);
-                });
             }
-        }
+            Optional<TabInfo> result = dialog.showAndWait();
+            result.ifPresent(ti -> {
+                tabInfo.setSarfxFile(ti.getSarfxFile());
+                tabInfo.setDocxFile(ti.getDocxFile());
+                tabInfo.setDirty(false);
+            });
+        }// end of if "showDialog"
+        return tabInfo.getSarfxFile() != null;
     }
 
 
@@ -295,6 +351,12 @@ public class SarfEnginePane extends BorderPane {
         verbalNounsColumn.setEditable(true);
         verbalNounsColumn.setCellValueFactory(new PropertyValueFactory<>("verbalNouns"));
         verbalNounsColumn.setCellFactory(VerbalNounTableCell::new);
+        verbalNounsColumn.setOnEditCommit(event -> {
+            TableView<TableModel> table = event.getTableView();
+            TableModel selectedItem = table.getSelectionModel().getSelectedItem();
+            selectedItem.getVerbalNouns().clear();
+            selectedItem.getVerbalNouns().addAll(event.getNewValue());
+        });
 
         TableColumn<TableModel, ObservableList<NounOfPlaceAndTime>> adverbsColumn = new TableColumn<>();
         adverbsColumn.setText("Adverbs");
@@ -302,6 +364,12 @@ public class SarfEnginePane extends BorderPane {
         adverbsColumn.setEditable(true);
         adverbsColumn.setCellValueFactory(new PropertyValueFactory<>("adverbs"));
         adverbsColumn.setCellFactory(AdverbTableCell::new);
+        adverbsColumn.setOnEditCommit(event -> {
+            TableView<TableModel> table = event.getTableView();
+            TableModel selectedItem = table.getSelectionModel().getSelectedItem();
+            selectedItem.getAdverbs().clear();
+            selectedItem.getAdverbs().addAll(event.getNewValue());
+        });
 
         //TODO: figure out how to refresh Verbal Noun column with new values
         templateColumn.setOnEditCommit(event -> {
@@ -312,15 +380,21 @@ public class SarfEnginePane extends BorderPane {
 
             // TODO: figure out how to update table
             List<VerbalNoun> verbalNouns = Global.VERBAL_NOUN_TEMPLATE_MAPPING.get(newValue);
+
+            // clear the currently selected verbal nouns first then add new values, if there is no verbal noun mapped
+            // then our list should be empty
+            selectedItem.getVerbalNouns().clear();
             if (verbalNouns != null) {
-                selectedItem.getVerbalNouns().clear();
                 selectedItem.getVerbalNouns().addAll(verbalNouns);
 
             }
 
             List<NounOfPlaceAndTime> adverbs = Global.ADVERB_TEMPLATE_MAPPING.get(newValue);
+
+            // clear the currently selected adverbs first then add new values, if there is no adverb mapped
+            // then our list should be empty
+            selectedItem.getAdverbs().clear();
             if (adverbs != null) {
-                selectedItem.getAdverbs().clear();
                 selectedItem.getAdverbs().addAll(adverbs);
             }
         });

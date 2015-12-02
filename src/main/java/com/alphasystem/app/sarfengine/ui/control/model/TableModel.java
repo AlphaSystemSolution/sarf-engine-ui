@@ -3,7 +3,10 @@ package com.alphasystem.app.sarfengine.ui.control.model;
 import com.alphasystem.arabic.model.NamedTemplate;
 import com.alphasystem.sarfengine.xml.model.*;
 import javafx.beans.property.*;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+
+import java.util.List;
 
 import static com.alphasystem.arabic.model.NamedTemplate.FORM_I_CATEGORY_A_GROUP_U_TEMPLATE;
 import static java.lang.Boolean.FALSE;
@@ -22,6 +25,7 @@ public final class TableModel {
     private final ObservableList<NounOfPlaceAndTime> adverbs = observableArrayList();
     private final BooleanProperty removePassiveLine = new SimpleBooleanProperty(FALSE, "removePassiveLine");
     private final BooleanProperty skipRuleProcessing = new SimpleBooleanProperty(FALSE, "skipRuleProcessing");
+    private final ConjugationData conjugationData;
 
     public TableModel() {
         this(new ConjugationData());
@@ -31,6 +35,7 @@ public final class TableModel {
         if (data == null) {
             data = new ConjugationData();
         }
+        this.conjugationData = data;
         setRootLetters(data.getRootLetters());
         setTemplate(data.getTemplate());
         setTranslation(data.getTranslation());
@@ -40,6 +45,42 @@ public final class TableModel {
         ConjugationConfiguration configuration = data.getConfiguration();
         setRemovePassiveLine(configuration.isRemovePassiveLine());
         setSkipRuleProcessing(configuration.isSkipRuleProcessing());
+
+        // add listeners to update conjugation data
+
+        rootLettersProperty().addListener((o, ov, nv) -> {
+            conjugationData.setRootLetters(nv);
+        });
+        templateProperty().addListener((o, ov, nv) -> {
+            conjugationData.setTemplate(nv);
+        });
+        translationProperty().addListener((o, ov, nv) -> {
+            conjugationData.setTranslation(nv);
+        });
+        verbalNouns.addListener((ListChangeListener<VerbalNoun>) c -> {
+            while (c.next()) {
+                List<VerbalNoun> verbalNouns = conjugationData.getContainer().getVerbalNouns();
+                verbalNouns.clear();
+                verbalNouns.addAll(c.getAddedSubList());
+            }
+        });
+        adverbs.addListener((ListChangeListener<NounOfPlaceAndTime>) c -> {
+            while (c.next()) {
+                List<NounOfPlaceAndTime> adverbs = conjugationData.getContainer().getAdverbs();
+                adverbs.clear();
+                adverbs.addAll(c.getAddedSubList());
+            }
+        });
+        removePassiveLineProperty().addListener((o, ov, nv) -> {
+            conjugationData.getConfiguration().setRemovePassiveLine(nv);
+        });
+        skipRuleProcessingProperty().addListener((o, ov, nv) -> {
+            conjugationData.getConfiguration().setSkipRuleProcessing(nv);
+        });
+    }
+
+    public final ConjugationData getConjugationData() {
+        return conjugationData;
     }
 
     public final boolean getChecked() {
