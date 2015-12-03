@@ -9,8 +9,10 @@ import com.alphasystem.arabic.model.NamedTemplate;
 import com.alphasystem.sarfengine.xml.model.*;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
+import javafx.scene.Cursor;
 import javafx.scene.Group;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -33,6 +35,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.alphasystem.app.sarfengine.ui.Global.*;
+import static com.alphasystem.app.sarfengine.util.TemplateReader.getDocxFile;
 import static com.alphasystem.arabic.ui.ComboBoxHelper.createComboBox;
 import static com.alphasystem.util.AppUtil.getResourceAsStream;
 import static java.lang.Math.max;
@@ -120,7 +123,12 @@ public class SarfEnginePane extends BorderPane {
 
     private Tab createTab(File file, ConjugationTemplate template) {
         Tab tab = new Tab(getTabTitle(file), createTable(template));
-        tab.setUserData(new TabInfo());
+        TabInfo value = new TabInfo();
+        if (file != null) {
+            value.setSarfxFile(file);
+            value.setDocxFile(getDocxFile(file));
+        }
+        tab.setUserData(value);
         tab.setOnCloseRequest(event -> {
             TabInfo tabInfo = getTabUserData();
             if (tabInfo.getDirty()) {
@@ -261,17 +269,20 @@ public class SarfEnginePane extends BorderPane {
      * @param showDialog true for "open" action, false for "new" action
      */
     private void openAction(boolean showDialog) {
+        changeCursor(Cursor.WAIT);
         File file = null;
         ConjugationTemplate template = null;
         if (showDialog) {
             file = FILE_CHOOSER.showOpenDialog(getScene().getWindow());
             if (file == null) {
                 // use might have cancel the dialog
+                changeCursor(Cursor.DEFAULT);
                 return;
             } else {
                 try {
                     template = templateReader.readFile(file);
                 } catch (ApplicationException e) {
+                    changeCursor(Cursor.DEFAULT);
                     e.printStackTrace();
                     showError(e);
                     return;
@@ -281,6 +292,7 @@ public class SarfEnginePane extends BorderPane {
         Tab tab = createTab(file, template);
         tabPane.getTabs().add(tab);
         tabPane.getSelectionModel().select(tab);
+        changeCursor(Cursor.DEFAULT);
     }
 
     private void addNewRowAction() {
@@ -293,6 +305,7 @@ public class SarfEnginePane extends BorderPane {
     }
 
     private void saveAction(SaveMode saveMode) {
+        changeCursor(Cursor.WAIT);
         final TabInfo tabInfo = getTabUserData();
         if (tabInfo != null) {
             if (showDialogIfApplicable(saveMode, tabInfo)) {
@@ -327,9 +340,11 @@ public class SarfEnginePane extends BorderPane {
                     tableView.getItems().addAll(currentItems);
                 }
             } catch (ApplicationException e) {
+                changeCursor(Cursor.DEFAULT);
                 e.printStackTrace();
                 showError(e);
             }
+            changeCursor(Cursor.DEFAULT);
         };
     }
 
@@ -528,6 +543,13 @@ public class SarfEnginePane extends BorderPane {
         owner = chartConfigurationDialog.getOwner();
         if (owner == null) {
             chartConfigurationDialog.initOwner(primaryStage);
+        }
+    }
+
+    private void changeCursor(Cursor cursor) {
+        Scene scene = getScene();
+        if (scene != null) {
+            scene.setCursor(cursor);
         }
     }
 
