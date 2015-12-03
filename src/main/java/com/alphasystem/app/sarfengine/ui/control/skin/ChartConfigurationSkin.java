@@ -25,11 +25,11 @@ public class ChartConfigurationSkin extends SkinBase<ChartConfigurationView> {
         super(control);
 
         BorderPane mainPane = new BorderPane();
-        mainPane.setCenter(inititializePane());
+        mainPane.setCenter(initializePane());
         getChildren().add(mainPane);
     }
 
-    private GridPane inititializePane() {
+    private GridPane initializePane() {
         GridPane gridPane = new GridPane();
         gridPane.setPadding(new Insets(10));
         gridPane.setVgap(10);
