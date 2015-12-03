@@ -64,6 +64,7 @@ public class ChartConfigurationView extends Control {
         });
 
         setChartConfiguration(null);
+        setMinWidth(400);
     }
 
     @Override
