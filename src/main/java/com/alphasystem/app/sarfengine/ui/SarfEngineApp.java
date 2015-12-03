@@ -33,6 +33,10 @@ public class SarfEngineApp extends Application {
         primaryStage.setMaximized(true);
         primaryStage.setScene(scene);
         primaryStage.show();
+
+        primaryStage.setOnShowing(event -> {
+            pane.setDialogOwner(primaryStage);
+        });
     }
 
 }

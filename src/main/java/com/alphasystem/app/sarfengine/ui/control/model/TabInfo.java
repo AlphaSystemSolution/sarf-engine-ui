@@ -1,5 +1,6 @@
 package com.alphasystem.app.sarfengine.ui.control.model;
 
+import com.alphasystem.sarfengine.xml.model.ChartConfiguration;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -14,10 +15,12 @@ public final class TabInfo {
 
     private final ObjectProperty<File> docxFile = new SimpleObjectProperty<>();
     private final ObjectProperty<File> sarfxFile = new SimpleObjectProperty<>();
+    private final ObjectProperty<ChartConfiguration> chartConfiguration = new SimpleObjectProperty<>();
     private final BooleanProperty dirty = new SimpleBooleanProperty();
 
     public TabInfo() {
         setDirty(true);
+        setChartConfiguration(null);
     }
 
     public final File getDocxFile() {
@@ -42,6 +45,18 @@ public final class TabInfo {
 
     public final ObjectProperty<File> sarfxFileProperty() {
         return sarfxFile;
+    }
+
+    public ChartConfiguration getChartConfiguration() {
+        return chartConfiguration.get();
+    }
+
+    public void setChartConfiguration(ChartConfiguration chartConfiguration) {
+        this.chartConfiguration.set(chartConfiguration == null ? new ChartConfiguration() : chartConfiguration);
+    }
+
+    public ObjectProperty<ChartConfiguration> chartConfigurationProperty() {
+        return chartConfiguration;
     }
 
     public final boolean getDirty() {
