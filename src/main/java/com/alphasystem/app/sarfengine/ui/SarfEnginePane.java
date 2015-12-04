@@ -9,6 +9,8 @@ import com.alphasystem.app.sarfengine.util.TemplateReader;
 import com.alphasystem.arabic.model.NamedTemplate;
 import com.alphasystem.sarfengine.xml.model.*;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Service;
+import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.scene.Cursor;
 import javafx.scene.Group;
@@ -45,8 +47,7 @@ import static java.lang.String.format;
 import static javafx.application.Platform.runLater;
 import static javafx.collections.FXCollections.observableArrayList;
 import static javafx.geometry.NodeOrientation.RIGHT_TO_LEFT;
-import static javafx.scene.control.Alert.AlertType.CONFIRMATION;
-import static javafx.scene.control.Alert.AlertType.ERROR;
+import static javafx.scene.control.Alert.AlertType.*;
 import static javafx.scene.control.ButtonType.*;
 import static javafx.scene.control.ContentDisplay.GRAPHIC_ONLY;
 import static javafx.scene.control.ScrollPane.ScrollBarPolicy.AS_NEEDED;
@@ -299,20 +300,20 @@ public class SarfEnginePane extends BorderPane {
      * @param showDialog true for "open" action, false for "new" action
      */
     private void openAction(boolean showDialog) {
-        changeCursor(Cursor.WAIT);
+        changeToWaitCursor();
         File file = null;
         ConjugationTemplate template = null;
         if (showDialog) {
             file = FILE_CHOOSER.showOpenDialog(getScene().getWindow());
             if (file == null) {
                 // use might have cancel the dialog
-                changeCursor(Cursor.DEFAULT);
+                changeToDefaultCursor();
                 return;
             } else {
                 try {
                     template = templateReader.readFile(file);
                 } catch (ApplicationException e) {
-                    changeCursor(Cursor.DEFAULT);
+                    changeToDefaultCursor();
                     e.printStackTrace();
                     showError(e);
                     return;
@@ -322,7 +323,7 @@ public class SarfEnginePane extends BorderPane {
         Tab tab = createTab(file, template);
         tabPane.getTabs().add(tab);
         tabPane.getSelectionModel().select(tab);
-        changeCursor(Cursor.DEFAULT);
+        changeToDefaultCursor();
     }
 
     private void addNewRowAction() {
@@ -335,7 +336,7 @@ public class SarfEnginePane extends BorderPane {
     }
 
     private void saveAction(SaveMode saveMode) {
-        changeCursor(Cursor.WAIT);
+        changeToWaitCursor();
         final TabInfo tabInfo = getTabUserData();
         if (tabInfo != null) {
             if (showDialogIfApplicable(saveMode, tabInfo)) {
@@ -372,18 +373,43 @@ public class SarfEnginePane extends BorderPane {
                     tableView.getItems().addAll(currentItems);
                 }
             } catch (ApplicationException e) {
-                changeCursor(Cursor.DEFAULT);
+                changeToDefaultCursor();
                 e.printStackTrace();
                 showError(e);
             }
-            changeCursor(Cursor.DEFAULT);
+            changeToDefaultCursor();
         };
     }
 
-    private void saveAsDocx(TabInfo tabInfo, ConjugationTemplate conjugationTemplate) {
-        SarfEngineHelper sarfEngineHelper = new SarfEngineHelper();
-        sarfEngineHelper.addAll(conjugationTemplate);
-        sarfEngineHelper.execute(tabInfo.getDocxFile(), tabInfo.getChartConfiguration());
+    private void saveAsDocx(final TabInfo tabInfo, final ConjugationTemplate conjugationTemplate) {
+        Service<Void> service = new Service<Void>() {
+            @Override
+            protected Task<Void> createTask() {
+                return new Task<Void>() {
+                    @Override
+                    protected Void call() throws Exception {
+                        changeToWaitCursor();
+                        SarfEngineHelper sarfEngineHelper = new SarfEngineHelper();
+                        sarfEngineHelper.convert(tabInfo.getDocxFile(), conjugationTemplate);
+                        return null;
+                    }
+                };
+            }
+        };
+        service.setOnSucceeded(event -> {
+            makeDirty(false);
+            changeToDefaultCursor();
+            Alert alert = new Alert(INFORMATION);
+            alert.setContentText("Document publishing has been finished.");
+            alert.showAndWait();
+        });
+        service.setOnFailed(event -> {
+            changeToDefaultCursor();
+            Alert alert = new Alert(ERROR);
+            alert.setContentText("Error occurred while publishing document.");
+            alert.showAndWait();
+        });
+        service.start();
     }
 
     private void showError(Exception ex) {
@@ -589,6 +615,14 @@ public class SarfEnginePane extends BorderPane {
         if (scene != null) {
             scene.setCursor(cursor);
         }
+    }
+
+    private void changeToDefaultCursor() {
+        changeCursor(Cursor.DEFAULT);
+    }
+
+    private void changeToWaitCursor() {
+        changeCursor(Cursor.WAIT);
     }
 
     private enum SaveMode {
