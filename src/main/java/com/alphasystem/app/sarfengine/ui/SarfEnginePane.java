@@ -299,31 +299,31 @@ public class SarfEnginePane extends BorderPane {
      *
      * @param showDialog true for "open" action, false for "new" action
      */
-    private void openAction(boolean showDialog) {
-        changeToWaitCursor();
+    private void openAction(final boolean showDialog) {
         File file = null;
-        ConjugationTemplate template = null;
         if (showDialog) {
             file = FILE_CHOOSER.showOpenDialog(getScene().getWindow());
             if (file == null) {
                 // use might have cancel the dialog
-                changeToDefaultCursor();
                 return;
-            } else {
-                try {
-                    template = templateReader.readFile(file);
-                } catch (ApplicationException e) {
-                    changeToDefaultCursor();
-                    e.printStackTrace();
-                    showError(e);
-                    return;
-                }
             }
         }
-        Tab tab = createTab(file, template);
-        tabPane.getTabs().add(tab);
-        tabPane.getSelectionModel().select(tab);
-        changeToDefaultCursor();
+        FileOpenService service = new FileOpenService(file);
+        service.setOnSucceeded(event -> {
+            Tab tab = (Tab) event.getSource().getValue();
+            if (tab != null) {
+                tabPane.getTabs().add(tab);
+                tabPane.getSelectionModel().select(tab);
+            }
+            changeToDefaultCursor();
+        });
+        service.setOnFailed(event -> {
+            changeToDefaultCursor();
+            Alert alert = new Alert(ERROR);
+            alert.setContentText("Error occurred while opening document.");
+            alert.showAndWait();
+        });
+        service.start();
     }
 
     private void addNewRowAction() {
@@ -441,7 +441,6 @@ public class SarfEnginePane extends BorderPane {
         }// end of if "showDialog"
         return tabInfo.getSarfxFile() != null;
     }
-
 
     @SuppressWarnings("unchecked")
     private void initializeTable(TableView<TableModel> tableView, double boundsWidth) {
@@ -628,5 +627,26 @@ public class SarfEnginePane extends BorderPane {
     private enum SaveMode {
         SAVE, SAVE_AS, SAVE_SELECTED
     }
+
+    private class FileOpenService extends Service<Tab> {
+
+        private final File file;
+
+        private FileOpenService(File file) {
+            this.file = file;
+        }
+
+        @Override
+        protected Task<Tab> createTask() {
+            return new Task<Tab>() {
+                @Override
+                protected Tab call() throws Exception {
+                    changeToWaitCursor();
+                    ConjugationTemplate template = file == null ? null : templateReader.readFile(file);
+                    return createTab(file, template);
+                } // end of method "call"
+            }; // end of anonymous class "Task"
+        } // end of method "createTask"
+    } // end of class "FileOpenService"
 
 }
