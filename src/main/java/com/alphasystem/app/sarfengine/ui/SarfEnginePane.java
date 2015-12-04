@@ -1,6 +1,7 @@
 package com.alphasystem.app.sarfengine.ui;
 
 import com.alphasystem.ApplicationException;
+import com.alphasystem.app.sarfengine.docx.SarfEngineHelper;
 import com.alphasystem.app.sarfengine.ui.control.*;
 import com.alphasystem.app.sarfengine.ui.control.model.TabInfo;
 import com.alphasystem.app.sarfengine.ui.control.model.TableModel;
@@ -19,7 +20,6 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCodeCombination;
-import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.BorderPane;
@@ -32,6 +32,7 @@ import javafx.stage.Window;
 
 import java.io.File;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Optional;
 
 import static com.alphasystem.app.sarfengine.ui.Global.*;
@@ -51,6 +52,7 @@ import static javafx.scene.control.SelectionMode.SINGLE;
 import static javafx.scene.control.TabPane.TabClosingPolicy.SELECTED_TAB;
 import static javafx.scene.control.cell.CheckBoxTableCell.forTableColumn;
 import static javafx.scene.input.KeyCode.S;
+import static javafx.scene.input.KeyCombination.ALT_DOWN;
 import static javafx.scene.input.KeyCombination.CONTROL_DOWN;
 import static javafx.scene.text.TextAlignment.CENTER;
 import static javafx.stage.Screen.getPrimary;
@@ -201,7 +203,7 @@ public class SarfEnginePane extends BorderPane {
         splitMenuButton.getItems().add(menuItem);
         menuItem = new MenuItem("Save As ...");
         menuItem.setOnAction(event -> saveAction(SaveMode.SAVE_AS));
-        menuItem.setAccelerator(new KeyCodeCombination(S, KeyCombination.ALT_DOWN, CONTROL_DOWN));
+        menuItem.setAccelerator(new KeyCodeCombination(S, ALT_DOWN, CONTROL_DOWN));
         splitMenuButton.getItems().add(menuItem);
         menuItem = new MenuItem("Save Selected Data ...");
         menuItem.setOnAction(event -> saveAction(SaveMode.SAVE_SELECTED));
@@ -215,6 +217,11 @@ public class SarfEnginePane extends BorderPane {
         button.setOnAction(event -> addNewRowAction());
         toolBar.getItems().add(button);
 
+        button = new Button();
+        button.setTooltip(new Tooltip("Remove Selected Row"));
+        button.setGraphic(new ImageView(new Image(getResourceAsStream("images.button-delete-icon.png"))));
+        button.setOnAction(event -> removeRowAction());
+
         toolBar.getItems().add(new Separator());
         button = new Button();
         button.setTooltip(new Tooltip("View / Edit Chart Configuration"));
@@ -223,6 +230,22 @@ public class SarfEnginePane extends BorderPane {
         toolBar.getItems().add(button);
 
         return toolBar;
+    }
+
+    private void removeRowAction() {
+        TableView<TableModel> currentTable = getCurrentTable();
+        if (currentTable != null) {
+            ObservableList<TableModel> items = currentTable.getItems();
+            if (items != null && !items.isEmpty()) {
+                ListIterator<TableModel> listIterator = items.listIterator();
+                while (listIterator.hasNext()) {
+                    TableModel model = listIterator.next();
+                    if (model.getChecked()) {
+                        listIterator.remove();
+                    }
+                }
+            }
+        }
     }
 
     private void updateChartConfiguration() {
@@ -330,8 +353,10 @@ public class SarfEnginePane extends BorderPane {
             }
             try {
                 File sarfxFile = tabInfo.getSarfxFile();
-                templateReader.saveFile(sarfxFile, getConjugationTemplate(currentItems, tabInfo.getChartConfiguration()));
-                // TODO: save a s DOCX
+                ConjugationTemplate conjugationTemplate = getConjugationTemplate(currentItems,
+                        tabInfo.getChartConfiguration());
+                templateReader.saveFile(sarfxFile, conjugationTemplate);
+                saveAsDocx(tabInfo, conjugationTemplate);
 
                 Tab currentTab = getCurrentTab();
                 currentTab.setText(TemplateReader.getFileNameNoExtension(sarfxFile));
@@ -346,6 +371,12 @@ public class SarfEnginePane extends BorderPane {
             }
             changeCursor(Cursor.DEFAULT);
         };
+    }
+
+    private void saveAsDocx(TabInfo tabInfo, ConjugationTemplate conjugationTemplate) {
+        SarfEngineHelper sarfEngineHelper = new SarfEngineHelper();
+        sarfEngineHelper.addAll(conjugationTemplate);
+        sarfEngineHelper.execute(tabInfo.getDocxFile(), tabInfo.getChartConfiguration());
     }
 
     private void showError(Exception ex) {
