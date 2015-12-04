@@ -11,6 +11,7 @@ import com.alphasystem.sarfengine.xml.model.*;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
+import javafx.concurrent.WorkerStateEvent;
 import javafx.geometry.Insets;
 import javafx.scene.Cursor;
 import javafx.scene.Group;
@@ -317,12 +318,7 @@ public class SarfEnginePane extends BorderPane {
             }
             changeToDefaultCursor();
         });
-        service.setOnFailed(event -> {
-            changeToDefaultCursor();
-            Alert alert = new Alert(ERROR);
-            alert.setContentText("Error occurred while opening document.");
-            alert.showAndWait();
-        });
+        service.setOnFailed(event -> showErrorServiceFailed(event, "Error occurred while opening document."));
         service.start();
     }
 
@@ -403,13 +399,15 @@ public class SarfEnginePane extends BorderPane {
             alert.setContentText("Document publishing has been finished.");
             alert.showAndWait();
         });
-        service.setOnFailed(event -> {
-            changeToDefaultCursor();
-            Alert alert = new Alert(ERROR);
-            alert.setContentText("Error occurred while publishing document.");
-            alert.showAndWait();
-        });
+        service.setOnFailed(event -> showErrorServiceFailed(event, "Error occurred while publishing document."));
         service.start();
+    }
+
+    private void showErrorServiceFailed(@SuppressWarnings({"unused"}) WorkerStateEvent event, String message) {
+        changeToDefaultCursor();
+        Alert alert = new Alert(ERROR);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 
     private void showError(Exception ex) {
