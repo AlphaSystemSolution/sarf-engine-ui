@@ -7,7 +7,7 @@ import javafx.collections.ObservableList;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 
-import static com.alphasystem.app.sarfengine.ui.Global.ARABIC_FONT_20;
+import static com.alphasystem.app.sarfengine.ui.Global.ARABIC_FONT_30;
 import static com.alphasystem.app.sarfengine.ui.Global.roundTo100;
 import static com.alphasystem.util.AppUtil.getResource;
 import static javafx.collections.FXCollections.observableArrayList;
@@ -62,15 +62,15 @@ public abstract class ArabicSupportGroupPane<T extends ArabicSupport> extends VB
         setMaxWidth(USE_PREF_SIZE);
         double width = toggleGroup.getWidth();
         double prefWidth = (width + SPACING) * numOfColumns;
-        setPrefWidth(roundTo100(prefWidth));
+        setPrefWidth(roundTo100(prefWidth) + 20);
 
         getStyleClass().addAll("popup");
     }
 
     protected void initToggleGroup() {
-        toggleGroup.setWidth(48);
-        toggleGroup.setHeight(32);
-        toggleGroup.setFont(ARABIC_FONT_20);
+        toggleGroup.setWidth(64);
+        toggleGroup.setHeight(48);
+        toggleGroup.setFont(ARABIC_FONT_30);
     }
 
     @Override

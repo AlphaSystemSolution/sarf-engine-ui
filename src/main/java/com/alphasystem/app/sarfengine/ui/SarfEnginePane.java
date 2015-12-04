@@ -15,6 +15,7 @@ import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
@@ -46,6 +47,7 @@ import static javafx.collections.FXCollections.observableArrayList;
 import static javafx.geometry.NodeOrientation.RIGHT_TO_LEFT;
 import static javafx.scene.control.Alert.AlertType.CONFIRMATION;
 import static javafx.scene.control.Alert.AlertType.ERROR;
+import static javafx.scene.control.ButtonType.*;
 import static javafx.scene.control.ContentDisplay.GRAPHIC_ONLY;
 import static javafx.scene.control.ScrollPane.ScrollBarPolicy.AS_NEEDED;
 import static javafx.scene.control.SelectionMode.SINGLE;
@@ -65,6 +67,7 @@ public class SarfEnginePane extends BorderPane {
 
     private static final double DEFAULT_MIN_HEIGHT = 500.0;
     private static final double ROW_SIZE = 40.0;
+    private static final Background BACKGROUND = new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY));
     private static int counter = 1;
 
     private final TabPane tabPane;
@@ -76,6 +79,7 @@ public class SarfEnginePane extends BorderPane {
     public SarfEnginePane() {
         tabPane = new TabPane();
         tabPane.setTabClosingPolicy(SELECTED_TAB);
+        tabPane.setBackground(BACKGROUND);
         newAction();
 
         chartConfigurationDialog = new ChartConfigurationDialog();
@@ -83,7 +87,7 @@ public class SarfEnginePane extends BorderPane {
 
         setCenter(tabPane);
         setTop(createToolBar());
-        setBackground(new Background(new BackgroundFill(Color.AQUA, CornerRadii.EMPTY, Insets.EMPTY)));
+        setBackground(BACKGROUND);
     }
 
     private static String getTabTitle(File file) {
@@ -135,13 +139,15 @@ public class SarfEnginePane extends BorderPane {
             TabInfo tabInfo = getTabUserData();
             if (tabInfo.getDirty()) {
                 Alert alert = new Alert(CONFIRMATION);
-                alert.setContentText("Do you  want to save data before closing?");
+                alert.setContentText("Do you want to save data before closing?");
+                alert.getButtonTypes().setAll(YES, NO, CANCEL);
                 Optional<ButtonType> result = alert.showAndWait();
                 ButtonType buttonType = result.get();
-                ButtonBar.ButtonData buttonData = buttonType.getButtonData();
+                ButtonData buttonData = buttonType.getButtonData();
+                String text = buttonType.getText();
                 if (buttonData.isDefaultButton()) {
                     saveAction(SaveMode.SAVE);
-                } else {
+                } else if (text.equals("Cancel")) {
                     event.consume();
                 }
             }
@@ -164,6 +170,7 @@ public class SarfEnginePane extends BorderPane {
         double boundsWidth = getPrimary().getVisualBounds().getWidth();
 
         TableView<TableModel> tableView = new TableView<>(tableModels);
+        tableView.setBackground(BACKGROUND);
         tableView.getSelectionModel().setSelectionMode(SINGLE);
         tableView.setEditable(true);
         initializeTable(tableView, boundsWidth);
