@@ -22,6 +22,35 @@
             <version>${sarf-engine-docx-writer.version}</version>
         </dependency>
     </dependencies>
+    <profiles>
+        <profile>
+            <id>executable</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <mainClass>com.alphasystem.app.sarfengine.ui.SarfEngineApp</mainClass>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-jar-plugin</artifactId>
+                        <configuration>
+                            <classifier>executable</classifier>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>library</id>
+        </profile>
+    </profiles>
     <properties>
         <maven.test.skip>true</maven.test.skip>
         <sarf-engine-base.version>${project.version}</sarf-engine-base.version>
