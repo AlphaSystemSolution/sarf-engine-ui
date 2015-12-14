@@ -33,10 +33,7 @@ public class RootLettersTableCell extends TableCell<TableModel, RootLetters> {
 
         popup.getContent().add(keyBoard);
         popup.setAutoHide(true);
-        popup.setOnHiding(event -> {
-            System.out.println("Hiding");
-            commitEdit();
-        });
+        popup.setOnHiding(event -> commitEdit());
         popup.setOnAutoHide(event -> commitEdit());
     }
 
