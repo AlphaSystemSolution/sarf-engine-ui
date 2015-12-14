@@ -77,7 +77,6 @@ public class SarfEnginePane extends BorderPane {
     private final ChartConfigurationDialog chartConfigurationDialog;
     private final TemplateReader templateReader = TemplateReader.getInstance();
 
-    @SuppressWarnings({"unchecked"})
     public SarfEnginePane() {
         tabPane = new TabPane();
         tabPane.setTabClosingPolicy(SELECTED_TAB);
@@ -459,14 +458,18 @@ public class SarfEnginePane extends BorderPane {
         rootLettersColumn.setEditable(true);
         rootLettersColumn.setCellValueFactory(new PropertyValueFactory<>("rootLetters"));
         rootLettersColumn.setCellFactory(RootLettersTableCell::new);
-        rootLettersColumn.setOnEditCommit(event -> makeDirty(true));
+        rootLettersColumn.setOnEditCommit(event -> {
+            makeDirty(true);
+            TableView<TableModel> table = event.getTableView();
+            TableModel selectedItem = table.getSelectionModel().getSelectedItem();
+            selectedItem.setRootLetters(event.getNewValue());
+        });
 
         TableColumn<TableModel, NamedTemplate> templateColumn = new TableColumn<>();
         templateColumn.setText("Form");
         templateColumn.setEditable(true);
         templateColumn.setPrefWidth(largeColumnWidth);
         templateColumn.setCellValueFactory(new PropertyValueFactory<>("template"));
-
         templateColumn.setCellFactory(column -> new ComboBoxTableCell<TableModel, NamedTemplate>(NamedTemplate.values()) {
             private final Text labelText;
             private final Text arabicText;
