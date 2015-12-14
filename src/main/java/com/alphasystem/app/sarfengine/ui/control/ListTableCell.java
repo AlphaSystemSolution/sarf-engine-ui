@@ -5,16 +5,13 @@ import com.alphasystem.arabic.model.ArabicSupport;
 import javafx.collections.ObservableList;
 import javafx.geometry.Bounds;
 import javafx.scene.Group;
-import javafx.scene.control.Button;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
-import javafx.scene.layout.FlowPane;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Popup;
 
 import static com.alphasystem.app.sarfengine.ui.Global.*;
 import static javafx.geometry.NodeOrientation.RIGHT_TO_LEFT;
-import static javafx.geometry.Pos.CENTER;
 import static javafx.scene.control.ContentDisplay.GRAPHIC_ONLY;
 
 /**
@@ -33,23 +30,9 @@ public abstract class ListTableCell<T extends ArabicSupport> extends TableCell<T
         this.groupPane = groupPane;
         popup = new Popup();
         popup.getContent().add(groupPane);
-        popup.setHideOnEscape(false);
-
-        Button doneButton = new Button("          Done          ");
-        doneButton.setOnAction(event -> {
-            commitEdit(groupPane.getSelectedValues());
-            popup.hide();
-        });
-
-        Button closeButton = new Button("          Close          ");
-        closeButton.setOnAction(event -> popup.hide());
-
-        FlowPane flowPane = new FlowPane();
-        flowPane.setHgap(10);
-        flowPane.getChildren().addAll(doneButton, closeButton);
-        flowPane.setAlignment(CENTER);
-
-        groupPane.getChildren().add(flowPane);
+        popup.setAutoHide(true);
+        popup.setOnHiding(event -> commitEdit(groupPane.getSelectedValues()));
+        popup.setOnAutoHide(event -> commitEdit(groupPane.getSelectedValues()));
     }
 
     @Override

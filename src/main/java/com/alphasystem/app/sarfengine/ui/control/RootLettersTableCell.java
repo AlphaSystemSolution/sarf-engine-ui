@@ -6,17 +6,14 @@ import com.alphasystem.arabic.ui.RootLettersPickerKeyBoard;
 import com.alphasystem.sarfengine.xml.model.RootLetters;
 import javafx.geometry.Bounds;
 import javafx.scene.Group;
-import javafx.scene.control.Button;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
-import javafx.scene.layout.FlowPane;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Popup;
 
 import static com.alphasystem.app.sarfengine.ui.Global.createLabel;
 import static com.alphasystem.app.sarfengine.ui.Global.createSpaceLabel;
 import static javafx.geometry.NodeOrientation.RIGHT_TO_LEFT;
-import static javafx.geometry.Pos.CENTER;
 import static javafx.scene.control.ContentDisplay.GRAPHIC_ONLY;
 
 /**
@@ -34,39 +31,27 @@ public class RootLettersTableCell extends TableCell<TableModel, RootLetters> {
         popup = new Popup();
         keyBoard = new RootLettersPickerKeyBoard();
 
-        Button doneButton = new Button("          Done          ");
-        doneButton.setOnAction(event -> {
-            ArabicLetterType[] rootLetters = keyBoard.getRootLetters();
-            commitEdit(new RootLetters().withFirstRadical(rootLetters[0]).withSecondRadical(rootLetters[1])
-                    .withThirdRadical(rootLetters[2]).withFourthRadical(rootLetters[3]));
-            popup.hide();
-        });
-
-        FlowPane flowPane = new FlowPane();
-        flowPane.setHgap(10);
-        flowPane.getChildren().addAll(doneButton);
-        flowPane.setAlignment(CENTER);
-        keyBoard.getChildren().add(flowPane);
-
         popup.getContent().add(keyBoard);
-        popup.setHideOnEscape(false);
+        popup.setAutoHide(true);
+        popup.setOnHiding(event -> {
+            System.out.println("Hiding");
+            commitEdit();
+        });
+        popup.setOnAutoHide(event -> commitEdit());
+    }
+
+    private void commitEdit() {
+        ArabicLetterType[] arabicLetters = keyBoard.getRootLetters();
+        RootLetters rootLetters = new RootLetters().withFirstRadical(arabicLetters[0]).withSecondRadical(arabicLetters[1])
+                .withThirdRadical(arabicLetters[2]).withFourthRadical(arabicLetters[3]);
+        commitEdit(rootLetters);
     }
 
     @Override
     public void startEdit() {
         super.startEdit();
-
-        RootLetters rootLetters = getItem();
-        keyBoard.setRootLetters(rootLetters.getFirstRadical(), rootLetters.getSecondRadical(),
-                rootLetters.getThirdRadical(), rootLetters.getFourthRadical());
         final Bounds bounds = localToScreen(getBoundsInLocal());
         popup.show(this, bounds.getMinX(), bounds.getMinY() + bounds.getHeight());
-    }
-
-    @Override
-    public void commitEdit(RootLetters newValue) {
-        super.commitEdit(newValue);
-        popup.hide();
     }
 
     @Override
@@ -75,6 +60,9 @@ public class RootLettersTableCell extends TableCell<TableModel, RootLetters> {
 
         Group label = null;
         if (item != null && !empty) {
+            keyBoard.setRootLetters(item.getFirstRadical(), item.getSecondRadical(),
+                    item.getThirdRadical(), item.getFourthRadical());
+
             TextFlow textFlow = new TextFlow();
 
             ArabicLetterType fourthRadical = item.getFourthRadical();
