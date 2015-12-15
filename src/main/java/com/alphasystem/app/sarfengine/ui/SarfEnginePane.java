@@ -565,7 +565,6 @@ public class SarfEnginePane extends BorderPane {
             selectedItem.getVerbalNouns().clear();
             if (verbalNouns != null) {
                 selectedItem.getVerbalNouns().addAll(verbalNouns);
-
             }
 
             List<NounOfPlaceAndTime> adverbs = Global.ADVERB_TEMPLATE_MAPPING.get(newValue);

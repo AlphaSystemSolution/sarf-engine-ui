@@ -29,6 +29,7 @@ import static javafx.scene.text.FontWeight.BLACK;
 public final class Global {
 
     // Fonts
+    public static final Font ARABIC_FONT_48 = Font.font("Arabic Typesetting", 48.0);
     public static final Font ARABIC_FONT_30 = Font.font("Arabic Typesetting", BLACK, REGULAR, 30.0);
     public static final Font ARABIC_FONT_24 = Font.font("Arabic Typesetting", BLACK, REGULAR, 24.0);
     public static final Font ARABIC_FONT_20 = Font.font("Arabic Typesetting", BLACK, REGULAR, 20.0);
