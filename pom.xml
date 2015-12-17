@@ -21,6 +21,11 @@
             <artifactId>sarf-engine-docx-writer</artifactId>
             <version>${sarf-engine-docx-writer.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.alphasystem.arabic</groupId>
+            <artifactId>arabic-ui-support</artifactId>
+            <version>${arabic-ui-support.version}</version>
+        </dependency>
     </dependencies>
     <profiles>
         <profile>
@@ -55,5 +60,6 @@
         <maven.test.skip>true</maven.test.skip>
         <sarf-engine-base.version>${project.version}</sarf-engine-base.version>
         <sarf-engine-docx-writer.version>${project.version}</sarf-engine-docx-writer.version>
+        <arabic-ui-support.version>${project.version}</arabic-ui-support.version>
     </properties>
 </project>
