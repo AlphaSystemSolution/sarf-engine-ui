@@ -2,6 +2,7 @@ package com.alphasystem.app.sarfengine.ui.control;
 
 import com.alphasystem.app.sarfengine.ui.control.model.TableModel;
 import com.alphasystem.arabic.model.ArabicSupport;
+import com.alphasystem.arabic.ui.ArabicSupportGroupPane;
 import javafx.collections.ObservableList;
 import javafx.geometry.Bounds;
 import javafx.scene.Group;

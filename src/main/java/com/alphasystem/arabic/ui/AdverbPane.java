@@ -1,4 +1,4 @@
-package com.alphasystem.app.sarfengine.ui.control;
+package com.alphasystem.arabic.ui;
 
 
 import com.alphasystem.morphologicalanalysis.morphology.model.support.NounOfPlaceAndTime;
