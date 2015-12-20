@@ -15,13 +15,12 @@ import javafx.scene.Node;
 import javafx.scene.control.SkinBase;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Paint;
-import javafx.scene.text.Font;
 
 import static com.alphasystem.app.sarfengine.docx.ConjugationHelper.*;
-import static com.alphasystem.app.sarfengine.ui.Global.*;
 import static com.alphasystem.arabic.model.ArabicLetterType.NEW_LINE;
 import static com.alphasystem.arabic.model.ArabicLetters.WORD_SPACE;
 import static com.alphasystem.arabic.model.ArabicWord.*;
+import static com.alphasystem.arabic.ui.util.FontConstants.*;
 import static javafx.geometry.NodeOrientation.RIGHT_TO_LEFT;
 import static javafx.geometry.Pos.CENTER_RIGHT;
 import static javafx.scene.paint.Color.DODGERBLUE;
@@ -120,7 +119,7 @@ public class SarfChartSkin extends SkinBase<SarfChartView> {
 
     private ArabicLabelView createTranslation(ConjugationHeader conjugationHeader) {
         ArabicLabelView labelView = new ArabicLabelView();
-        labelView.setFont(Font.font("Candara", 12.0));
+        labelView.setFont(ENGLISH_FONT_12);
         labelView.setWidth(WIDTH * NUM_OF_COLUMNS);
         labelView.setHeight(HEIGHT * 2);
         labelView.setDisable(true);

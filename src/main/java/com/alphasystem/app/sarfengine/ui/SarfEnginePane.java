@@ -47,6 +47,8 @@ import java.util.Optional;
 import static com.alphasystem.app.sarfengine.ui.Global.*;
 import static com.alphasystem.app.sarfengine.util.TemplateReader.getDocxFile;
 import static com.alphasystem.arabic.ui.ComboBoxHelper.createComboBox;
+import static com.alphasystem.arabic.ui.util.FontConstants.ARABIC_FONT_24;
+import static com.alphasystem.arabic.ui.util.FontConstants.ENGLISH_FONT_12;
 import static com.alphasystem.util.AppUtil.getResourceAsStream;
 import static java.lang.Math.max;
 import static java.lang.String.format;
@@ -490,7 +492,7 @@ public class SarfEnginePane extends BorderPane {
                 arabicText.setNodeOrientation(RIGHT_TO_LEFT);
                 labelText = new Text();
                 labelText.setTextAlignment(CENTER);
-                labelText.setFont(ENGLISH_FONT);
+                labelText.setFont(ENGLISH_FONT_12);
 
                 comboBox.getSelectionModel().selectedItemProperty().addListener((o, ov, nv) -> {
                     commitEdit(nv);
