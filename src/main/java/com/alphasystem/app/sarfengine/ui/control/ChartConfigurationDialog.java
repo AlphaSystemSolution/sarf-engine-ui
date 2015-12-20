@@ -1,6 +1,6 @@
 package com.alphasystem.app.sarfengine.ui.control;
 
-import com.alphasystem.sarfengine.xml.model.ChartConfiguration;
+import com.alphasystem.morphologicalanalysis.morphology.model.ChartConfiguration;
 import javafx.scene.control.Dialog;
 
 import static javafx.scene.control.ButtonType.CANCEL;

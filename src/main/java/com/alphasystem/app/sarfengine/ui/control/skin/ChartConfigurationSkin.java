@@ -1,8 +1,8 @@
 package com.alphasystem.app.sarfengine.ui.control.skin;
 
 import com.alphasystem.app.sarfengine.ui.control.ChartConfigurationView;
-import com.alphasystem.sarfengine.xml.model.SortDirection;
-import com.alphasystem.sarfengine.xml.model.SortDirective;
+import com.alphasystem.morphologicalanalysis.morphology.model.support.SortDirection;
+import com.alphasystem.morphologicalanalysis.morphology.model.support.SortDirective;
 import javafx.geometry.Insets;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;

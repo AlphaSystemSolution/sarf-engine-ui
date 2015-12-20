@@ -1,7 +1,7 @@
 package com.alphasystem.app.sarfengine.ui.control;
 
 import com.alphasystem.app.sarfengine.ui.control.model.TableModel;
-import com.alphasystem.sarfengine.xml.model.VerbalNoun;
+import com.alphasystem.morphologicalanalysis.morphology.model.support.VerbalNoun;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TableColumn;
 

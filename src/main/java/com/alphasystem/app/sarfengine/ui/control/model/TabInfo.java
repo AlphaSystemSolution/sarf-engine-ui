@@ -1,6 +1,6 @@
 package com.alphasystem.app.sarfengine.ui.control.model;
 
-import com.alphasystem.sarfengine.xml.model.ChartConfiguration;
+import com.alphasystem.morphologicalanalysis.morphology.model.ChartConfiguration;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;

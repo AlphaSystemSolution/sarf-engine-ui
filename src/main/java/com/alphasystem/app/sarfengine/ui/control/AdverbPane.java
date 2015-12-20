@@ -1,8 +1,9 @@
 package com.alphasystem.app.sarfengine.ui.control;
 
-import com.alphasystem.sarfengine.xml.model.NounOfPlaceAndTime;
 
-import static com.alphasystem.sarfengine.xml.model.NounOfPlaceAndTime.values;
+import com.alphasystem.morphologicalanalysis.morphology.model.support.NounOfPlaceAndTime;
+
+import static com.alphasystem.morphologicalanalysis.morphology.model.support.NounOfPlaceAndTime.values;
 
 /**
  * @author sali

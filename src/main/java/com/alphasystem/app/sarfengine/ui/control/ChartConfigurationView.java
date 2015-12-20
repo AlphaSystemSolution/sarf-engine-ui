@@ -1,9 +1,9 @@
 package com.alphasystem.app.sarfengine.ui.control;
 
 import com.alphasystem.app.sarfengine.ui.control.skin.ChartConfigurationSkin;
-import com.alphasystem.sarfengine.xml.model.ChartConfiguration;
-import com.alphasystem.sarfengine.xml.model.SortDirection;
-import com.alphasystem.sarfengine.xml.model.SortDirective;
+import com.alphasystem.morphologicalanalysis.morphology.model.ChartConfiguration;
+import com.alphasystem.morphologicalanalysis.morphology.model.support.SortDirection;
+import com.alphasystem.morphologicalanalysis.morphology.model.support.SortDirective;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;

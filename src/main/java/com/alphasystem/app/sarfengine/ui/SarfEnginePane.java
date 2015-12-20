@@ -7,7 +7,12 @@ import com.alphasystem.app.sarfengine.ui.control.model.TabInfo;
 import com.alphasystem.app.sarfengine.ui.control.model.TableModel;
 import com.alphasystem.app.sarfengine.util.TemplateReader;
 import com.alphasystem.arabic.model.NamedTemplate;
-import com.alphasystem.sarfengine.xml.model.*;
+import com.alphasystem.morphologicalanalysis.morphology.model.ChartConfiguration;
+import com.alphasystem.morphologicalanalysis.morphology.model.ConjugationData;
+import com.alphasystem.morphologicalanalysis.morphology.model.ConjugationTemplate;
+import com.alphasystem.morphologicalanalysis.morphology.model.RootLetters;
+import com.alphasystem.morphologicalanalysis.morphology.model.support.NounOfPlaceAndTime;
+import com.alphasystem.morphologicalanalysis.morphology.model.support.VerbalNoun;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
@@ -558,7 +563,7 @@ public class SarfEnginePane extends BorderPane {
             selectedItem.setTemplate(newValue);
 
             // TODO: figure out how to update table
-            List<VerbalNoun> verbalNouns = Global.VERBAL_NOUN_TEMPLATE_MAPPING.get(newValue);
+            List<VerbalNoun> verbalNouns = VerbalNoun.getByTemplate(newValue);
 
             // clear the currently selected verbal nouns first then add new values, if there is no verbal noun mapped
             // then our list should be empty
@@ -567,7 +572,7 @@ public class SarfEnginePane extends BorderPane {
                 selectedItem.getVerbalNouns().addAll(verbalNouns);
             }
 
-            List<NounOfPlaceAndTime> adverbs = Global.ADVERB_TEMPLATE_MAPPING.get(newValue);
+            List<NounOfPlaceAndTime> adverbs = NounOfPlaceAndTime.getByTemplate(newValue);
 
             // clear the currently selected adverbs first then add new values, if there is no adverb mapped
             // then our list should be empty

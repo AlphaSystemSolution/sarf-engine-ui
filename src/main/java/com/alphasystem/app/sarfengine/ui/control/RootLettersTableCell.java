@@ -3,7 +3,7 @@ package com.alphasystem.app.sarfengine.ui.control;
 import com.alphasystem.app.sarfengine.ui.control.model.TableModel;
 import com.alphasystem.arabic.model.ArabicLetterType;
 import com.alphasystem.arabic.ui.RootLettersPickerKeyBoard;
-import com.alphasystem.sarfengine.xml.model.RootLetters;
+import com.alphasystem.morphologicalanalysis.morphology.model.RootLetters;
 import javafx.geometry.Bounds;
 import javafx.scene.Group;
 import javafx.scene.control.TableCell;

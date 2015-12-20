@@ -1,7 +1,11 @@
 package com.alphasystem.app.sarfengine.ui.control.model;
 
 import com.alphasystem.arabic.model.NamedTemplate;
-import com.alphasystem.sarfengine.xml.model.*;
+import com.alphasystem.morphologicalanalysis.morphology.model.ConjugationConfiguration;
+import com.alphasystem.morphologicalanalysis.morphology.model.ConjugationData;
+import com.alphasystem.morphologicalanalysis.morphology.model.RootLetters;
+import com.alphasystem.morphologicalanalysis.morphology.model.support.NounOfPlaceAndTime;
+import com.alphasystem.morphologicalanalysis.morphology.model.support.VerbalNoun;
 import javafx.beans.property.*;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
