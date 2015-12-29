@@ -64,11 +64,24 @@ public class SarfChartSkin extends SkinBase<SarfChartView> {
             SarfKabeer sarfKabeer = sarfChart.getSarfKabeer();
             Node[] nodes = new Node[0];
             nodes = add(nodes, layoutSarfKabeerPair(sarfKabeer.getActiveTensePair()));
-            nodes = layoutSarfKabeerPairs(nodes, sarfKabeer.getVerbalNounPairs());
+            SarfKabeerPair[] verbalNounPairs = sarfKabeer.getVerbalNounPairs();
+            if (!isEmpty(verbalNounPairs)) {
+                nodes = layoutSarfKabeerPairs(nodes, verbalNounPairs);
+            }
             nodes = add(nodes, layoutSarfKabeerPair(sarfKabeer.getActiveParticiplePair()));
-            nodes = add(nodes, layoutSarfKabeerPair(sarfKabeer.getPassiveTensePair()));
+            SarfKabeerPair passiveTensePair = sarfKabeer.getPassiveTensePair();
+            if (passiveTensePair != null) {
+                nodes = add(nodes, layoutSarfKabeerPair(passiveTensePair));
+            }
+            SarfKabeerPair passiveParticiplePair = sarfKabeer.getPassiveParticiplePair();
+            if (passiveParticiplePair != null) {
+                nodes = add(nodes, layoutSarfKabeerPair(passiveParticiplePair));
+            }
             nodes = add(nodes, layoutSarfKabeerPair(sarfKabeer.getImperativeAndForbiddingPair()));
-            nodes = layoutSarfKabeerPairs(nodes, sarfKabeer.getAdverbPairs());
+            SarfKabeerPair[] adverbPairs = sarfKabeer.getAdverbPairs();
+            if (!isEmpty(adverbPairs)) {
+                nodes = layoutSarfKabeerPairs(nodes, adverbPairs);
+            }
             vBox.getChildren().addAll(nodes);
             viewPane.setCenter(vBox);
         }
@@ -189,8 +202,11 @@ public class SarfChartSkin extends SkinBase<SarfChartView> {
     private GridPane createAdverbLine(AdverbLine adverbLine) {
         GridPane gridPane = new GridPane();
 
-        ArabicWord arabicWord = concatenateWithSpace(ZARF_PREFIX, getConcatenateWithAnd(adverbLine.getAdverbs()));
-        gridPane.add(createRootWord(arabicWord, TOTAL_WIDTH), 1, 0);
+        RootWord[] adverbs = (adverbLine == null) ? null : adverbLine.getAdverbs();
+        if (!isEmpty(adverbs)) {
+            ArabicWord arabicWord = concatenateWithSpace(ZARF_PREFIX, getConcatenateWithAnd(adverbs));
+            gridPane.add(createRootWord(arabicWord, TOTAL_WIDTH), 1, 0);
+        }
 
         return gridPane;
     }
