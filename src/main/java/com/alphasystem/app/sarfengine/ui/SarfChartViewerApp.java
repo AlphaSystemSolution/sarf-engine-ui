@@ -42,7 +42,7 @@ public class SarfChartViewerApp extends Application {
 
         ConjugationBuilder conjugationBuilder = GuiceSupport.getInstance().getConjugationBuilderFactory().getConjugationBuilder();
 
-        SarfChart sarfChart = conjugationBuilder.doConjugation(NamedTemplate.FORM_IX_TEMPLATE, "", false, false,
+        SarfChart sarfChart = conjugationBuilder.doConjugation(NamedTemplate.FORM_IX_TEMPLATE, "To Collapse", false, false,
                 ArabicLetterType.NOON, ArabicLetterType.QAF, ArabicLetterType.DDAD,
                 Collections.singletonList(VerbalNoun.VERBAL_NOUN_FORM_IX), null);
         SarfChartView sarfChartView = new SarfChartView();

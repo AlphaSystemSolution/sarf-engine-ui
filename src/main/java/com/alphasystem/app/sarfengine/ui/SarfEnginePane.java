@@ -23,7 +23,10 @@ import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar.ButtonData;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
@@ -39,7 +42,9 @@ import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 
+import java.awt.*;
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Optional;
@@ -338,10 +343,10 @@ public class SarfEnginePane extends BorderPane {
     }
 
     private void saveAction(SaveMode saveMode) {
-        changeToWaitCursor();
         final TabInfo tabInfo = getTabUserData();
         if (tabInfo != null) {
             if (showDialogIfApplicable(saveMode, tabInfo)) {
+                changeToWaitCursor();
                 runLater(saveData(saveMode, tabInfo));
             } // end of if "doSave"
         } // end of if "tabInfo != null"
@@ -403,9 +408,20 @@ public class SarfEnginePane extends BorderPane {
             changeToDefaultCursor();
             Alert alert = new Alert(INFORMATION);
             alert.setContentText("Document publishing has been finished.");
-            alert.showAndWait();
+            Optional<ButtonType> result = alert.showAndWait();
+            result.ifPresent(buttonType -> {
+                try {
+                    Desktop.getDesktop().open(tabInfo.getDocxFile());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
+
         });
-        service.setOnFailed(event -> showErrorServiceFailed(event, "Error occurred while publishing document."));
+        service.setOnFailed(event -> {
+            showError(event.getSource().getException());
+            //showErrorServiceFailed(event, "Error occurred while publishing document.");
+        });
         service.start();
     }
 
@@ -416,9 +432,10 @@ public class SarfEnginePane extends BorderPane {
         alert.showAndWait();
     }
 
-    private void showError(Exception ex) {
+    private void showError(Throwable ex) {
+        ex.printStackTrace();
         Alert alert = new Alert(ERROR);
-        alert.setContentText(ex.getMessage());
+        alert.setContentText(format("%s:%s", ex.getClass().getName(), ex.getMessage()));
         alert.showAndWait();
     }
 
