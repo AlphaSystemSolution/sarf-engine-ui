@@ -22,6 +22,7 @@ import static com.alphasystem.arabic.model.ArabicLetters.WORD_SPACE;
 import static com.alphasystem.arabic.model.ArabicWord.*;
 import static com.alphasystem.arabic.ui.util.FontConstants.*;
 import static javafx.geometry.NodeOrientation.RIGHT_TO_LEFT;
+import static javafx.geometry.Pos.CENTER;
 import static javafx.geometry.Pos.CENTER_RIGHT;
 import static javafx.scene.paint.Color.DODGERBLUE;
 import static javafx.scene.paint.Color.TRANSPARENT;
@@ -56,6 +57,7 @@ public class SarfChartSkin extends SkinBase<SarfChartView> {
         viewPane.setCenter(new Pane());
         if (sarfChart != null) {
             VBox vBox = new VBox();
+            vBox.setAlignment(CENTER);
             vBox.setSpacing(SPACING);
 
             ConjugationHeader chartHeader = sarfChart.getHeader();
@@ -145,6 +147,7 @@ public class SarfChartSkin extends SkinBase<SarfChartView> {
 
     private VBox createSarfSagheer(SarfSagheer sarfSagheer) {
         VBox vBox = new VBox();
+        vBox.setAlignment(CENTER);
 
         vBox.getChildren().add(createActiveLine(sarfSagheer.getActiveLine()));
         PassiveLine passiveLine = sarfSagheer.getPassiveLine();
@@ -161,6 +164,7 @@ public class SarfChartSkin extends SkinBase<SarfChartView> {
 
     private GridPane createActiveLine(ActiveLine activeLine) {
         GridPane gridPane = new GridPane();
+        gridPane.setAlignment(CENTER);
 
         double width = TOTAL_WIDTH / 4;
         gridPane.add(createRootWord(activeLine.getActiveParticipleMasculine().getRootWord(), width), 0, 0);
@@ -174,6 +178,7 @@ public class SarfChartSkin extends SkinBase<SarfChartView> {
 
     private GridPane createPassiveLine(PassiveLine passiveLine) {
         GridPane gridPane = new GridPane();
+        gridPane.setAlignment(CENTER);
 
         double width = TOTAL_WIDTH / 4;
         gridPane.add(createRootWord(passiveLine.getPassiveParticipleMasculine().getRootWord(), width), 0, 0);
@@ -187,6 +192,7 @@ public class SarfChartSkin extends SkinBase<SarfChartView> {
 
     private GridPane createImperativeAndForbiddingLine(ImperativeAndForbiddingLine imperativeAndForbiddingLine) {
         GridPane gridPane = new GridPane();
+        gridPane.setAlignment(CENTER);
 
         double width = TOTAL_WIDTH / 2;
         ArabicWord rootWord = imperativeAndForbiddingLine.getForbidding().getRootWord();
@@ -201,6 +207,7 @@ public class SarfChartSkin extends SkinBase<SarfChartView> {
 
     private GridPane createAdverbLine(AdverbLine adverbLine) {
         GridPane gridPane = new GridPane();
+        gridPane.setAlignment(CENTER);
 
         RootWord[] adverbs = (adverbLine == null) ? null : adverbLine.getAdverbs();
         if (!isEmpty(adverbs)) {
@@ -251,6 +258,7 @@ public class SarfChartSkin extends SkinBase<SarfChartView> {
 
     private HBox layoutSarfKabeerPair(SarfKabeerPair sarfKabeerPair) {
         HBox hBox = new HBox();
+        hBox.setAlignment(CENTER);
         hBox.setSpacing(SPACING);
 
         GridPane rightSidePane = layoutConjugation(sarfKabeerPair.getRightSideStack());
@@ -262,6 +270,7 @@ public class SarfChartSkin extends SkinBase<SarfChartView> {
 
     private GridPane layoutConjugation(ConjugationStack conjugationStack) {
         GridPane gridPane = new GridPane();
+        gridPane.setAlignment(CENTER);
         gridPane.setNodeOrientation(RIGHT_TO_LEFT);
 
         ArabicLabelToggleGroup labelGroup = new ArabicLabelToggleGroup();
